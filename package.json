@@ -6,9 +6,11 @@
     "prepare": "husky",
     "format": "prettier --write .",
     "test": "jest",
-    "test:cov": "jest --coverage"
+    "test:cov": "jest --coverage",
+    "lint": "eslint ."
   },
   "lint-staged": {
+    "*.{js,ts}": "eslint .",
     "**/*": "prettier --write --ignore-unknown"
   },
   "keywords": [],
