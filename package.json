@@ -1,0 +1,38 @@
+{
+  "name": "ic-swap-js",
+  "version": "0.0.1",
+  "main": "src/index.ts",
+  "scripts": {
+    "prepare": "husky",
+    "format": "prettier --write .",
+    "test": "jest",
+    "test:cov": "jest --coverage"
+  },
+  "lint-staged": {
+    "**/*": "prettier --write --ignore-unknown"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@jest/globals": "^29.7.0",
+    "@types/jest": "^29.5.12",
+    "eslint": "^9.9.1",
+    "eslint-config-prettier": "^9.1.0",
+    "globals": "^15.9.0",
+    "husky": "^9.1.5",
+    "jest": "^29.7.0",
+    "lint-staged": "^15.2.10",
+    "prettier": "3.3.3",
+    "ts-jest": "^29.2.5",
+    "typescript": "^5.5.4",
+    "typescript-eslint": "^8.4.0"
+  },
+  "dependencies": {
+    "@alpaca-icp/token-adapter": "^1.0.2",
+    "@dfinity/agent": "^1.4.0",
+    "@dfinity/candid": "^1.4.0",
+    "@dfinity/principal": "^1.4.0"
+  }
+}
