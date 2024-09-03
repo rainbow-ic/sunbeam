@@ -1,6 +1,12 @@
+import { Actor } from "@dfinity/agent";
 import { ISwap } from "../types/ISwap";
 
 export class ICPSwap implements ISwap {
+  private actor: Actor;
+
+  constructor(actor: Actor) {
+    this.actor = actor;
+  }
   quote(): void {
     throw new Error("Method not implemented.");
   }
