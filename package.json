@@ -1,5 +1,5 @@
 {
-  "name": "ic-swap-js",
+  "name": "swap-js",
   "version": "0.0.1",
   "main": "src/index.ts",
   "scripts": {
