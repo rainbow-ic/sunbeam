@@ -1,7 +1,7 @@
 import {
     SwapArgs as ICSSwapArgs,
     PoolMetadata as ICSPoolMetadata,
-} from "../types/actors/icswap/icpswapPool";
+} from "./actors/icswap/icpswapPool";
 import { PublicTokenOverview as ICSTokenData } from "./actors/icswap/icpswapNodeIndex";
 
 export type QuoteResult = bigint;
