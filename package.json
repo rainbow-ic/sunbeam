@@ -1,5 +1,5 @@
 {
-    "name": "dex-js",
+    "name": "@rainbow-ic/sunbeam",
     "version": "0.0.1",
     "main": "src/index.ts",
     "type": "module",
@@ -16,9 +16,9 @@
         "**/*": "prettier --write --ignore-unknown"
     },
     "keywords": [],
-    "author": "",
-    "license": "ISC",
-    "description": "",
+    "author": "tranbaolong14@gmail.com",
+    "license": "MIT",
+    "description": "multiple ICP dexes lib",
     "devDependencies": {
         "@jest/globals": "^29.7.0",
         "@types/jest": "^29.5.12",
@@ -41,5 +41,16 @@
         "@dfinity/candid": "^2.0.0",
         "@dfinity/principal": "^2.0.0",
         "@ic-reactor/core": "^1.8.0"
-    }
+    },
+    "directories": {
+        "test": "tests"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/rainbow-ic/sunbeam.git"
+    },
+    "bugs": {
+        "url": "https://github.com/rainbow-ic/sunbeam/issues"
+    },
+    "homepage": "https://github.com/rainbow-ic/sunbeam#readme"
 }
