@@ -12,3 +12,5 @@ export const parseOptionResponse = <T, E>(response: Response<T, E>): T => {
         throw new Error(JSON.stringify(response.err));
     }
 };
+
+export * from "./validateCaller";

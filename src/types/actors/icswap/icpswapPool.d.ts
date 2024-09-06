@@ -306,7 +306,7 @@ export interface WithdrawErrorLog {
     user: Principal;
     amount: bigint;
 }
-export default interface _SERVICE {
+export interface _SERVICE {
     allTokenBalance: ActorMethod<[bigint, bigint], Result_31>;
     approvePosition: ActorMethod<[Principal, bigint], Result_10>;
     batchRefreshIncome: ActorMethod<[Array<bigint>], Result_30>;

@@ -1,14 +1,15 @@
 {
-    "name": "swap-js",
+    "name": "dex-js",
     "version": "0.0.1",
     "main": "src/index.ts",
+    "type": "module",
     "scripts": {
         "prepare": "husky",
         "format": "prettier --write .",
         "test": "jest",
         "test:cov": "jest --coverage",
         "lint": "eslint .",
-        "dev": "ts-node src/index.ts"
+        "dev": "npx tsx src/index.ts"
     },
     "lint-staged": {
         "*.{js,ts}": "eslint .",
@@ -30,12 +31,12 @@
         "prettier": "3.3.3",
         "prettier-plugin-rust": "^0.1.9",
         "ts-jest": "^29.2.5",
-        "ts-node": "^10.9.2",
+        "tsx": "^4.19.0",
         "typescript": "^5.5.4",
         "typescript-eslint": "^8.4.0"
     },
     "dependencies": {
-        "@alpaca-icp/token-adapter": "^1.0.2",
+        "@alpaca-icp/token-adapter": "^1.0.9",
         "@dfinity/agent": "^1.4.0",
         "@dfinity/candid": "^1.4.0",
         "@dfinity/principal": "^1.4.0",
