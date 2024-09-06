@@ -1,9 +1,7 @@
-import { CanisterWrapperInitArgs } from "../types/CanisterWrapper";
 import { DexService } from "../services/DexService";
 import { ICPSwap } from "../services/ICPSwap";
-import { SupportedDEX } from "../constant";
-
-export type DexFactoryInitArgs = CanisterWrapperInitArgs;
+import { ICPSWAP_NODE_INDEX_CANISTER, SupportedDEX } from "../constant";
+import { HttpAgent } from "@dfinity/agent";
 
 export class DexFactory {
     static create({
@@ -11,11 +9,18 @@ export class DexFactory {
         initArgs,
     }: {
         dex: SupportedDEX;
-        initArgs: DexFactoryInitArgs;
+        initArgs: {
+            agent: HttpAgent;
+        };
     }): DexService {
         switch (dex) {
             case SupportedDEX.ICPSwap:
-                return new DexService(new ICPSwap(initArgs));
+                return new DexService(
+                    new ICPSwap({
+                        agent: initArgs.agent,
+                        id: ICPSWAP_NODE_INDEX_CANISTER,
+                    }),
+                );
             case SupportedDEX.Sonic:
                 throw new Error("Method not implemented.");
             default:
