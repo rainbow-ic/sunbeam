@@ -9,4 +9,4 @@ Factory create these classes
 -   [DexService](./docs/DexService.md)
 -   [SwapPoolService](./docs/SwapPoolService.md)
 
-## [Example](https://github.com/rainbow-ic/sunbeam)
+## [Example](https://github.com/rainbow-ic/sunbeam-example)
