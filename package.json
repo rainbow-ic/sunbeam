@@ -52,5 +52,8 @@
     "bugs": {
         "url": "https://github.com/rainbow-ic/sunbeam/issues"
     },
-    "homepage": "https://github.com/rainbow-ic/sunbeam#readme"
+    "homepage": "https://github.com/rainbow-ic/sunbeam#readme",
+    "publishConfig": {
+        "registry": "https://registry.npmjs.org"
+    }
 }
