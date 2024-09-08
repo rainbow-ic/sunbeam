@@ -36,7 +36,7 @@
         "typescript-eslint": "^8.4.0"
     },
     "dependencies": {
-        "@alpaca-icp/token-adapter": "^1.0.9",
+        "@alpaca-icp/token-adapter": "^1.0.10",
         "@dfinity/agent": "^2.0.0",
         "@dfinity/candid": "^2.0.0",
         "@dfinity/principal": "^2.0.0",
@@ -52,8 +52,5 @@
     "bugs": {
         "url": "https://github.com/rainbow-ic/sunbeam/issues"
     },
-    "homepage": "https://github.com/rainbow-ic/sunbeam#readme",
-    "publishConfig": {
-        "registry": "https://npm.pkg.github.com"
-    }
+    "homepage": "https://github.com/rainbow-ic/sunbeam#readme"
 }
