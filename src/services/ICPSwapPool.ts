@@ -1,29 +1,45 @@
 import { Actor } from "@dfinity/agent";
-import { ISwapPool } from "../types/ISwap";
+import { Identity, HttpAgent } from "@dfinity/agent";
+import { IPool, PoolData, Token as IToken } from "../types/ISwap";
 import {
     DepositArgs,
     SwapArgs as ICSSwapArgs,
     PoolMetadata as ICSPoolMetadata,
 } from "../types/actors/icswap/icpswapPool";
 import { parseOptionResponse, validateCaller } from "../utils";
-import { Token } from "@alpaca-icp/token-adapter";
 import { TokenStandard } from "../types";
 import { Principal } from "@dfinity/principal";
 import { CanisterWrapper, CanisterWrapperInitArgs } from "../types/CanisterWrapper";
 import { icsPool } from "../types/actors";
+import { Token } from "@alpaca-icp/token-adapter";
+import { PublicPoolOverView } from "../types/actors/icswap/icpswapNodeIndex";
 
 type IcpswapPoolActor = icsPool._SERVICE;
 
-export class ICPSwapPool extends CanisterWrapper implements ISwapPool {
+export class ICPSwapPool extends CanisterWrapper implements IPool {
     private actor: IcpswapPoolActor;
+    private poolData: PublicPoolOverView;
 
-    constructor({ id, agent }: CanisterWrapperInitArgs) {
-        super({ id, agent });
+    constructor({ agent, poolData }: { agent: HttpAgent; poolData: PublicPoolOverView }) {
+        super({ id: poolData.pool, agent });
         this.actor = Actor.createActor(icsPool.idlFactory, {
             agent,
-            canisterId: id,
+            canisterId: poolData.pool,
         });
+        this.poolData = poolData;
     }
+
+    getPoolData(): PoolData {
+        throw "Not implemented";
+    }
+
+    isForToken(token: IToken): boolean {
+        const addr = token.address;
+        if (this.poolData.token0Id === addr) return true;
+        if (this.poolData.token1Id === addr) return true;
+        return false;
+    }
+
     async quote(args: ICSSwapArgs): Promise<bigint> {
         const res = await this.actor.quote(args);
         const quote = parseOptionResponse(res);
