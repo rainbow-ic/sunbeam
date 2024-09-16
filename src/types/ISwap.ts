@@ -22,15 +22,15 @@ export type Token = {
 
     // TODO: should this be always included or make it optional
     // additional info
-    id: bigint;
-    volumeUSD1d: number;
-    volumeUSD7d: number;
-    totalVolumeUSD: number;
-    volumeUSD: number;
-    feesUSD: number;
-    priceUSDChange: number;
-    txCount: bigint;
-    priceUSD: number;
+    id?: bigint;
+    volumeUSD1d?: number;
+    volumeUSD7d?: number;
+    totalVolumeUSD?: number;
+    volumeUSD?: number;
+    feesUSD?: number;
+    priceUSDChange?: number;
+    txCount?: bigint;
+    priceUSD?: number;
 };
 
 export type PoolData = {
@@ -50,11 +50,12 @@ export type SwapArgs = {
 };
 
 export interface IPool {
-    swap(args: ICSSwapArgs): Promise<bigint>;
-    quote(args: ICSSwapArgs): Promise<bigint>;
+    swap(args: SwapArgs): Promise<bigint>;
+    quote(args: SwapArgs): Promise<bigint>;
     getMetadata(): Promise<ICSPoolMetadata>;
     getPoolData(): PoolData;
     isForToken(token: Token): boolean;
+    getTokens(): [Token, Token];
 }
 
 export interface IDex {

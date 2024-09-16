@@ -30,7 +30,13 @@ export class ICPSwapPool extends CanisterWrapper implements IPool {
     }
 
     getPoolData(): PoolData {
-        throw "Not implemented";
+        const data = this.poolData;
+        const [token1, token2] = this.getTokens();
+        return {
+            address: data.pool,
+            token1,
+            token2,
+        };
     }
 
     isForToken(token: IToken): boolean {
@@ -38,6 +44,23 @@ export class ICPSwapPool extends CanisterWrapper implements IPool {
         if (this.poolData.token0Id === addr) return true;
         if (this.poolData.token1Id === addr) return true;
         return false;
+    }
+
+    getTokens(): [IToken, IToken] {
+        const data = this.poolData;
+        const token1 = {
+            symbol: data.token0Symbol,
+            name: data.token0Symbol,
+            address: data.token0Id,
+            standard: data.token0Standard,
+        };
+        const token2 = {
+            symbol: data.token1Symbol,
+            name: data.token1Symbol,
+            address: data.token1Id,
+            standard: data.token1Standard,
+        };
+        return [token1, token2];
     }
 
     async quote(args: ICSSwapArgs): Promise<bigint> {

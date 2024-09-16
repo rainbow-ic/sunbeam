@@ -1,19 +1,22 @@
-import { Actor } from "@dfinity/agent";
+import { Actor, HttpAgent } from "@dfinity/agent";
 import { IDex, IPool, Token } from "../types/ISwap";
 import { CanisterWrapper, CanisterWrapperInitArgs } from "../types/CanisterWrapper";
 import { icsIndexNode } from "../types/actors";
 import {
     PublicTokenOverview as ICSTokenData,
     PublicPoolOverView as ICSPoolData,
+    PublicTokenOverview,
 } from "../types/actors/icswap/icpswapNodeIndex";
 import { Pool } from "./DexService";
 import { ICPSwapPool } from "./ICPSwapPool";
+import { ICPSWAP_NODE_INDEX_CANISTER } from "../constant";
 type IndexNodeActor = icsIndexNode._SERVICE;
 
 export class ICPSwap extends CanisterWrapper implements IDex {
     private actor: IndexNodeActor;
 
-    constructor({ id, agent }: CanisterWrapperInitArgs) {
+    constructor({ agent, address }: { agent: HttpAgent; address?: string }) {
+        const id = address ?? ICPSWAP_NODE_INDEX_CANISTER;
         super({ id, agent });
         this.actor = Actor.createActor(icsIndexNode.idlFactory, {
             agent,
@@ -21,8 +24,10 @@ export class ICPSwap extends CanisterWrapper implements IDex {
         });
     }
 
-    async listTokens(): Promise<ICSTokenData[]> {
-        return await this.actor.getAllTokens();
+    async listTokens(): Promise<Token[]> {
+        const tokenData: PublicTokenOverview[] = await this.actor.getAllTokens();
+        const tokens: Token[] = tokenData.map((data) => data);
+        return tokens;
     }
 
     async listPools(token1?: Token, token2?: Token): Promise<IPool[]> {
@@ -41,8 +46,11 @@ export class ICPSwap extends CanisterWrapper implements IDex {
                     agent: this.agent,
                 }),
         );
-        if (token2) return pools.filter((pool) => pool.isForToken(token2));
-        else return pools;
+        if (token2) {
+            return pools.filter((pool) => pool.isForToken(token2));
+        } else {
+            return pools;
+        }
     }
 
     async getPool(token1: Token, token2: Token): Promise<IPool> {
