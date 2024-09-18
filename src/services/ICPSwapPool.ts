@@ -1,6 +1,6 @@
 import { Actor } from "@dfinity/agent";
 import { Identity, HttpAgent } from "@dfinity/agent";
-import { IPool, PoolData, Token as IToken } from "../types/ISwap";
+import { IPool, PoolData, Token as IToken, SwapArgs } from "../types/ISwap";
 import {
     DepositArgs,
     SwapArgs as ICSSwapArgs,
@@ -63,8 +63,26 @@ export class ICPSwapPool extends CanisterWrapper implements IPool {
         return [token1, token2];
     }
 
-    async quote(args: ICSSwapArgs): Promise<bigint> {
-        const res = await this.actor.quote(args);
+    private toIcpSwapArgs(args: SwapArgs): ICSSwapArgs {
+        const amountIn = args.amountIn.toString();
+        const amountOutMinimum = (args.amoundOutMinimum || 0).toString();
+
+        const [token1, token2] = this.getTokens();
+        const addrIn = args.tokenIn.address;
+        if (addrIn !== token1.address && addrIn !== token2.address) {
+            throw new Error("invalid arguments: token address does not match tokens in pool");
+        }
+        const zeroForOne = args.tokenIn.address === token1.address;
+
+        return {
+            amountIn,
+            zeroForOne,
+            amountOutMinimum,
+        };
+    }
+
+    async quote(args: SwapArgs): Promise<bigint> {
+        const res = await this.actor.quote(this.toIcpSwapArgs(args));
         const quote = parseOptionResponse(res);
         return quote;
     }
@@ -81,38 +99,37 @@ export class ICPSwapPool extends CanisterWrapper implements IPool {
         return metadata;
     }
 
-    async swap(args: ICSSwapArgs): Promise<bigint> {
+    async swap(args: SwapArgs): Promise<bigint> {
         const caller = await this.agent.getPrincipal();
         validateCaller(caller);
+        const swapArgs = this.toIcpSwapArgs(args);
 
         // GET TOKEN INFO
-        const res = await this.actor.metadata();
-        const metadata = parseOptionResponse(res);
-        const { token0, token1 } = metadata;
+        const { token0: meta1, token1: meta2 } = await this.getMetadata();
 
         let tokenSwapInstance: Token;
         let fee: bigint;
         let tokenAddress: string;
         let tokenStandard: TokenStandard;
 
-        if (args.zeroForOne) {
+        if (swapArgs.zeroForOne) {
             tokenSwapInstance = new Token({
-                canisterId: token0.address,
-                tokenStandard: token0.standard as TokenStandard,
+                canisterId: meta1.address,
+                tokenStandard: meta1.standard as TokenStandard,
                 agent: this.agent,
             });
             fee = await tokenSwapInstance.getFee();
-            tokenAddress = token0.address;
-            tokenStandard = token0.standard as TokenStandard;
+            tokenAddress = meta1.address;
+            tokenStandard = meta1.standard as TokenStandard;
         } else {
             tokenSwapInstance = new Token({
-                canisterId: token1.address,
-                tokenStandard: token1.standard as TokenStandard,
+                canisterId: meta2.address,
+                tokenStandard: meta2.standard as TokenStandard,
                 agent: this.agent,
             });
             fee = await tokenSwapInstance.getFee();
-            tokenAddress = token1.address;
-            tokenStandard = token1.standard as TokenStandard;
+            tokenAddress = meta2.address;
+            tokenStandard = meta2.standard as TokenStandard;
         }
 
         // DEPOSIT TO POOL
@@ -139,19 +156,11 @@ export class ICPSwapPool extends CanisterWrapper implements IPool {
 
         // SWAP
         // doc: https://github.com/ICPSwap-Labs/docs/blob/main/02.SwapPool/Swap/01.Getting_a_Quote.md
-        const quoteResult = await this.quote({
-            amountIn: args.amountIn,
-            zeroForOne: args.zeroForOne,
-            amountOutMinimum: args.amountOutMinimum,
-        });
+        const quoteResult = await this.quote(args);
 
         console.log("quoteResult", quoteResult);
 
-        const swapResult = await this.actor.swap({
-            amountIn: args.amountIn,
-            zeroForOne: args.zeroForOne,
-            amountOutMinimum: quoteResult.toString(),
-        });
+        const swapResult = await this.actor.swap(swapArgs);
 
         const result = parseOptionResponse(swapResult);
 

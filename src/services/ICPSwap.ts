@@ -7,7 +7,7 @@ import {
     PublicPoolOverView as ICSPoolData,
     PublicTokenOverview,
 } from "../types/actors/icswap/icpswapNodeIndex";
-import { Pool } from "./DexService";
+
 import { ICPSwapPool } from "./ICPSwapPool";
 import { ICPSWAP_NODE_INDEX_CANISTER } from "../constant";
 type IndexNodeActor = icsIndexNode._SERVICE;
