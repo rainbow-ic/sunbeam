@@ -1,14 +1,17 @@
 import { Actor } from "@dfinity/agent";
 import { HttpAgent } from "@dfinity/agent";
-import { IPool, PoolData, Token as IToken, SwapArgs } from "../types/ISwap";
-import { DepositArgs, PoolMetadata as ICSPoolMetadata } from "../types/actors/icswap/icpswapPool";
-import { parseOptionResponse, validateCaller } from "../utils";
-import { TokenStandard } from "../types";
+import { IPool, PoolData, Token as IToken, SwapArgs } from "../../types/ISwap";
+import {
+    DepositArgs,
+    PoolMetadata as ICSPoolMetadata,
+} from "../../types/actors/icswap/icpswapPool";
+import { parseOptionResponse, validateCaller } from "../../utils";
+import { TokenStandard } from "../../types";
 import { Principal } from "@dfinity/principal";
-import { CanisterWrapper } from "../types/CanisterWrapper";
-import { icsPool } from "../types/actors";
+import { CanisterWrapper } from "../../types/CanisterWrapper";
+import { icsPool } from "../../types/actors";
 import { Token } from "@alpaca-icp/token-adapter";
-import { PublicPoolOverView } from "../types/actors/icswap/icpswapNodeIndex";
+import { PublicPoolOverView } from "../../types/actors/icswap/icpswapNodeIndex";
 
 type IcpswapPoolActor = icsPool._SERVICE;
 

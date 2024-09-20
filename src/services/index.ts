@@ -1,2 +1,1 @@
-export * from "./ICPSwap";
-export * from "./ICPSwapPool";
+export * from "./icsswap";
