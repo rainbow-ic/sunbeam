@@ -1,13 +1,8 @@
 import { Actor, HttpAgent } from "@dfinity/agent";
 import { IDex, IPool, Token } from "../types/ISwap";
-import { CanisterWrapper, CanisterWrapperInitArgs } from "../types/CanisterWrapper";
+import { CanisterWrapper } from "../types/CanisterWrapper";
 import { icsIndexNode } from "../types/actors";
-import {
-    PublicTokenOverview as ICSTokenData,
-    PublicPoolOverView as ICSPoolData,
-    PublicTokenOverview,
-} from "../types/actors/icswap/icpswapNodeIndex";
-
+import { PublicTokenOverview } from "../types/actors/icswap/icpswapNodeIndex";
 import { ICPSwapPool } from "./ICPSwapPool";
 import { ICPSWAP_NODE_INDEX_CANISTER } from "../constant";
 type IndexNodeActor = icsIndexNode._SERVICE;
