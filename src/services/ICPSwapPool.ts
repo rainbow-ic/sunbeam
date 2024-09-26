@@ -118,6 +118,18 @@ export class ICPSwapPool extends CanisterWrapper implements ISwapPool {
 
         return result;
     }
+
+    async getTokenInPool(): Promise<{
+        swapFee0Repurchase: bigint;
+        token0Amount: bigint;
+        swapFeeReceiver: string;
+        token1Amount: bigint;
+        swapFee1Repurchase: bigint;
+    }> {
+        const res = await this.actor.getTokenAmountState();
+        const tokenAmountState = parseOptionResponse(res);
+        return tokenAmountState;
+    }
     // getLPInfo?(): void {
     //     throw new Error("Method not implemented.");
     // }
