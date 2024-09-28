@@ -1,11 +1,11 @@
 import { Actor } from "@dfinity/agent";
-import { IDex } from "../types/ISwap";
-import { CanisterWrapper, CanisterWrapperInitArgs } from "../types/CanisterWrapper";
-import { icsIndexNode } from "../types/actors";
+import { IDex } from "../../types/ISwap";
+import { CanisterWrapper, CanisterWrapperInitArgs } from "../../types/CanisterWrapper";
+import { icsIndexNode } from "../../types/actors";
 import {
     PublicTokenOverview as ICSTokenData,
     PublicPoolOverView as ICSPoolData,
-} from "../types/actors/icswap/icpswapNodeIndex";
+} from "../../types/actors/icswap/icpswapNodeIndex";
 type IndexNodeActor = icsIndexNode._SERVICE;
 
 export class ICPSwap extends CanisterWrapper implements IDex {

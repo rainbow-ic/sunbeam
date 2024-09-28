@@ -3,6 +3,7 @@ import {
     SwapArgs as ICSSwapArgs,
     PoolMetadata as ICSPoolMetadata,
 } from "../types/actors/icswap/icpswapPool";
+import { ICSLPInfo } from "../types/ICPSwap";
 export class SwapPoolService {
     private strategy: ISwapPool;
 
@@ -18,5 +19,9 @@ export class SwapPoolService {
     }
     getMetadata(): Promise<ICSPoolMetadata> {
         return this.strategy.getMetadata();
+    }
+
+    getLPInfo(): Promise<ICSLPInfo> {
+        return this.strategy.getLPInfo();
     }
 }

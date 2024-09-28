@@ -1,4 +1,3 @@
 export * from "./DexService";
 export * from "./SwapPoolService";
-
-export * from "./ICPSwapPool";
+export * from "./icswap";
