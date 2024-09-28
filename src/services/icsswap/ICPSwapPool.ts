@@ -12,6 +12,7 @@ import { CanisterWrapper } from "../../types/CanisterWrapper";
 import { icsPool } from "../../types/actors";
 import { Token } from "@alpaca-icp/token-adapter";
 import { PublicPoolOverView } from "../../types/actors/icswap/icpswapNodeIndex";
+import { ICSLPInfo } from "../../types/ICPSwap";
 
 type IcpswapPoolActor = icsPool._SERVICE;
 
@@ -68,7 +69,11 @@ export class ICPSwapPool extends CanisterWrapper implements IPool {
         };
         return [token1, token2];
     }
-
+    async getLPInfo(): Promise<ICSLPInfo> {
+        const tokenInPool = await this.actor.getTokenAmountState();
+        const tokenAmountState = parseOptionResponse(tokenInPool);
+        return tokenAmountState;
+    }
     async quote(args: SwapArgs): Promise<bigint> {
         const zeroForOne = this.isZeroForOne(args.tokenIn);
         const icsArgs = args.toICSSwapArgs(zeroForOne);
