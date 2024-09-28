@@ -2,7 +2,7 @@ import {
     SwapArgs as ICSSwapArgs,
     PoolMetadata as ICSPoolMetadata,
 } from "./actors/icswap/icpswapPool";
-
+import { ICSLPInfo } from "./ICPSwap";
 export type Quote = {
     amountIn: bigint;
     amoutnOut: bigint;
@@ -76,6 +76,7 @@ export interface IPool {
     getPoolData(): PoolData;
     isForToken(token: Token): boolean;
     getTokens(): [Token, Token];
+    getLPInfo(): Promise<ICSLPInfo>;
 }
 
 export interface IDex {
