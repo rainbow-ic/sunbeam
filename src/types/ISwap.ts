@@ -1,7 +1,4 @@
-import {
-    SwapArgs as ICSSwapArgs,
-    PoolMetadata as ICSPoolMetadata,
-} from "./actors/icswap/icpswapPool";
+import { PoolMetadata as ICSPoolMetadata } from "./actors/icswap/icpswapPool";
 import { ICSLPInfo } from "./ICPSwap";
 export type Quote = {
     amountIn: bigint;
@@ -39,35 +36,11 @@ export type Transaction = {
     id: string;
 };
 
-// export type SwapArgs = {
-//     tokenIn: Token;
-//     amountIn: bigint;
-//     amoundOutMinimum?: bigint;
-// };
-
-export class SwapArgs {
-    public tokenIn: Token;
-    public amountIn: bigint;
-    public amountOutMinimum?: bigint;
-
-    constructor({ tokenIn, amountIn, amountOutMinimum }: SwapArgs) {
-        this.tokenIn = tokenIn;
-        this.amountIn = amountIn;
-        this.amountOutMinimum = amountOutMinimum;
-    }
-
-    public toICSSwapArgs(zeroForOne: boolean): ICSSwapArgs {
-        if (this.amountOutMinimum === null || this.amountOutMinimum === undefined) {
-            throw new Error("amountOutMinimum is required");
-        }
-
-        return {
-            amountIn: this.amountIn.toString(),
-            zeroForOne: zeroForOne,
-            amountOutMinimum: this.amountOutMinimum.toString(),
-        };
-    }
-}
+export type SwapArgs = {
+    tokenIn: Token;
+    amountIn: bigint;
+    amoundOutMinimum?: bigint;
+};
 
 export interface IPool {
     swap(args: SwapArgs): Promise<bigint>;
