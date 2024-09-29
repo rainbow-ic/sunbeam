@@ -11,10 +11,10 @@ export type Token = {
     symbol: string;
     name: string;
     address: string;
-    standard: string;
+};
 
-    // TODO: should this be always included or make it optional
-    // additional info
+export type ICSToken = Token & {
+    standard: string;
     id?: bigint;
     volumeUSD1d?: number;
     volumeUSD7d?: number;
@@ -24,6 +24,22 @@ export type Token = {
     priceUSDChange?: number;
     txCount?: bigint;
     priceUSD?: number;
+};
+
+export type KongSwapToken = Token & {
+    fee: bigint;
+    decimals: number;
+    token: string;
+    token_id: number;
+    chain: string;
+    name: string;
+    canister_id: string;
+    icrc1: boolean;
+    icrc2: boolean;
+    icrc3: boolean;
+    pool_symbol: string;
+    symbol: string;
+    on_kong: boolean;
 };
 
 export type PoolData = {
@@ -53,7 +69,7 @@ export interface IPool {
 }
 
 export interface IDex {
-    listTokens(): Promise<Token[]>;
+    listTokens(): Promise<ICSToken[] | KongSwapToken[]>;
     listPools(token1?: Token, token2?: Token): Promise<IPool[]>;
     getPool(token1: Token, token2: Token): Promise<IPool>;
 }

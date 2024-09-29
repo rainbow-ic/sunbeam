@@ -1,5 +1,5 @@
 import { Actor, HttpAgent } from "@dfinity/agent";
-import { IDex, IPool, Token } from "../../types/ISwap";
+import { ICSToken, IDex, IPool, Token } from "../../types/ISwap";
 import { CanisterWrapper } from "../../types/CanisterWrapper";
 import { icsIndexNode } from "../../types/actors";
 import { PublicTokenOverview } from "../../types/actors/icswap/icpswapNodeIndex";
@@ -19,9 +19,9 @@ export class ICPSwap extends CanisterWrapper implements IDex {
         });
     }
 
-    async listTokens(): Promise<Token[]> {
+    async listTokens(): Promise<ICSToken[]> {
         const tokenData: PublicTokenOverview[] = await this.actor.getAllTokens();
-        const tokens: Token[] = tokenData.map((data) => data);
+        const tokens = tokenData.map((data) => data);
         return tokens;
     }
 
