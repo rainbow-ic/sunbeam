@@ -12,7 +12,6 @@
         "dev": "npx tsx src/index.ts"
     },
     "lint-staged": {
-        "*.{js,ts}": "eslint .",
         "**/*": "prettier --write --ignore-unknown"
     },
     "keywords": [],
