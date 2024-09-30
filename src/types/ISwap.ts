@@ -1,5 +1,6 @@
 import { PoolMetadata as ICSPoolMetadata } from "./actors/icswap/icpswapPool";
-import { ICSLPInfo } from "./ICPSwap";
+import { ICSLPInfo, ICSToken } from "./ICPSwap";
+import * as kongswap from "./KongSwap";
 export type Quote = {
     amountIn: bigint;
     amoutnOut: bigint;
@@ -13,43 +14,10 @@ export type Token = {
     address: string;
 };
 
-export type ICSToken = Token & {
-    standard: string;
-    id?: bigint;
-    volumeUSD1d?: number;
-    volumeUSD7d?: number;
-    totalVolumeUSD?: number;
-    volumeUSD?: number;
-    feesUSD?: number;
-    priceUSDChange?: number;
-    txCount?: bigint;
-    priceUSD?: number;
-};
-
-export type KongSwapToken = Token & {
-    fee: bigint;
-    decimals: number;
-    token: string;
-    token_id: number;
-    chain: string;
-    name: string;
-    canister_id: string;
-    icrc1: boolean;
-    icrc2: boolean;
-    icrc3: boolean;
-    pool_symbol: string;
-    symbol: string;
-    on_kong: boolean;
-};
-
 export type PoolData = {
     address: string;
     token1: Token;
     token2: Token;
-};
-
-export type Transaction = {
-    id: string;
 };
 
 export type SwapArgs = {
@@ -59,9 +27,9 @@ export type SwapArgs = {
 };
 
 export interface IPool {
-    swap(args: SwapArgs): Promise<bigint>;
-    quote(args: SwapArgs): Promise<bigint>;
-    getMetadata(): Promise<ICSPoolMetadata>;
+    swap(args: SwapArgs | kongswap.SwapArgs): Promise<bigint | kongswap.SwapResponse>;
+    quote(args: SwapArgs | kongswap.QuoteArgs): Promise<bigint | kongswap.QuoteResponse>;
+    getMetadata(): Promise<ICSPoolMetadata | kongswap.PoolMetadata | null>;
     getPoolData(): PoolData;
     isForToken(token: Token): boolean;
     getTokens(): [Token, Token];
@@ -69,7 +37,7 @@ export interface IPool {
 }
 
 export interface IDex {
-    listTokens(): Promise<ICSToken[] | KongSwapToken[]>;
+    listTokens(): Promise<ICSToken[] | kongswap.KongSwapToken[]>;
     listPools(token1?: Token, token2?: Token): Promise<IPool[]>;
     getPool(token1: Token, token2: Token): Promise<IPool>;
 }
