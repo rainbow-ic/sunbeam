@@ -6,7 +6,7 @@ import {
     SwapArgs as ICSSwapArgs,
     PoolMetadata as ICSPoolMetadata,
 } from "../../types/actors/icswap/icpswapPool";
-import { parseOptionResponse, validateCaller } from "../../utils";
+import { parseResultResponse, validateCaller } from "../../utils";
 import { TokenStandard } from "../../types";
 import { Principal } from "@dfinity/principal";
 import { CanisterWrapper } from "../../types/CanisterWrapper";
@@ -72,7 +72,7 @@ export class ICPSwapPool extends CanisterWrapper implements IPool {
     }
     async getLPInfo(): Promise<ICSLPInfo> {
         const tokenInPool = await this.actor.getTokenAmountState();
-        const tokenAmountState = parseOptionResponse(tokenInPool);
+        const tokenAmountState = parseResultResponse(tokenInPool);
         return tokenAmountState;
     }
 
@@ -95,19 +95,19 @@ export class ICPSwapPool extends CanisterWrapper implements IPool {
     }
     async quote(args: SwapArgs): Promise<bigint> {
         const res = await this.actor.quote(this.toIcpSwapArgs(args));
-        const quote = parseOptionResponse(res);
+        const quote = parseResultResponse(res);
         return quote;
     }
 
     async depositFrom(args: DepositArgs): Promise<bigint> {
         const res = await this.actor.depositFrom(args);
-        const depositResult = parseOptionResponse(res);
+        const depositResult = parseResultResponse(res);
         return depositResult;
     }
 
     async getMetadata(): Promise<ICSPoolMetadata> {
         const res = await this.actor.metadata();
-        const metadata = parseOptionResponse(res);
+        const metadata = parseResultResponse(res);
         return metadata;
     }
 
@@ -183,14 +183,8 @@ export class ICPSwapPool extends CanisterWrapper implements IPool {
             amountOutMinimum: quoteResult.toString(),
         });
 
-        const result = parseOptionResponse(swapResult);
+        const result = parseResultResponse(swapResult);
 
         return result;
     }
-    // getLPInfo?(): void {
-    //     throw new Error("Method not implemented.");
-    // }
-    // addLP?(): void {
-    //     throw new Error("Method not implemented.");
-    // }
 }

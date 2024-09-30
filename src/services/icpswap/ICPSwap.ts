@@ -1,10 +1,11 @@
 import { Actor, HttpAgent } from "@dfinity/agent";
-import { ICSToken, IDex, IPool, Token } from "../../types/ISwap";
+import { IDex, IPool, Token } from "../../types/ISwap";
 import { CanisterWrapper } from "../../types/CanisterWrapper";
 import { icsIndexNode } from "../../types/actors";
 import { PublicTokenOverview } from "../../types/actors/icswap/icpswapNodeIndex";
 import { ICPSwapPool } from "./ICPSwapPool";
 import { ICPSWAP_NODE_INDEX_CANISTER } from "../../constant";
+import { ICSToken } from "../../types";
 type IndexNodeActor = icsIndexNode._SERVICE;
 
 export class ICPSwap extends CanisterWrapper implements IDex {
