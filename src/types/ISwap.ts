@@ -26,6 +26,8 @@ export type SwapArgs = {
     amoundOutMinimum?: bigint;
 };
 
+export type ListPoolToken = Token | kongswap.ListPoolToken;
+
 export interface IPool {
     swap(args: SwapArgs | kongswap.SwapArgs): Promise<bigint | kongswap.SwapResponse>;
     quote(args: SwapArgs | kongswap.QuoteArgs): Promise<bigint | kongswap.QuoteResponse>;
@@ -38,6 +40,6 @@ export interface IPool {
 
 export interface IDex {
     listTokens(): Promise<ICSToken[] | kongswap.KongSwapToken[]>;
-    listPools(token1?: Token, token2?: Token): Promise<IPool[]>;
-    getPool(token1: Token, token2: Token): Promise<IPool>;
+    listPools(token1?: ListPoolToken, token2?: ListPoolToken): Promise<IPool[]>;
+    getPool(token1: ListPoolToken, token2: ListPoolToken): Promise<IPool>;
 }

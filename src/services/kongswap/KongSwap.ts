@@ -1,5 +1,5 @@
 import { Actor, HttpAgent } from "@dfinity/agent";
-import { IDex, IPool, kongswap, Token } from "../../types";
+import { IDex, IPool, kongswap } from "../../types";
 import { kongBackend } from "../../types/actors";
 import { PublicPoolOverView } from "../../types/actors/icswap/icpswapNodeIndex";
 import { CanisterWrapper } from "../../types/CanisterWrapper";
@@ -86,14 +86,25 @@ export class KongSwap extends CanisterWrapper implements IDex {
     ): Promise<IPool[]> {
         let tokensRes;
 
-        // Kong swap didn't support pools search by a token
-        if (token1 && token2) {
-            tokensRes = await this.actor.pools([
-                `${token1.chain}.${token1.address}_${token1.chain}.${token2.address}`,
-            ]);
+        // searching for pool of token 1
+        if (token1) {
+            tokensRes = await this.actor.pools([token1.address]);
         } else tokensRes = await this.actor.pools(["all"]);
 
-        const result = parseResultResponse(tokensRes);
+        let result = parseResultResponse(tokensRes);
+
+        // filter out if token2 is provided
+        // Kong swap is not support for pair searching
+        if (token1 && token2) {
+            result = result.filter((pool) => {
+                if (
+                    (pool.address_0 === token1.address && pool.address_1 === token2.address) ||
+                    (pool.address_0 === token2.address && pool.address_1 === token1.address)
+                ) {
+                    return pool;
+                }
+            });
+        }
 
         if (result.length === 0) {
             return [];
@@ -105,13 +116,13 @@ export class KongSwap extends CanisterWrapper implements IDex {
             const poolData = {
                 address: `${pool.chain_0}.${pool.address_0}_${pool.chain_1}.${pool.address_1}`,
                 token1: {
-                    symbol: "",
-                    name: "",
+                    symbol: pool.symbol_0,
+                    name: pool.address_0,
                     address: `${pool.chain_0}.${pool.address_0}`,
                 },
                 token2: {
-                    symbol: "",
-                    name: "",
+                    symbol: pool.symbol_1,
+                    name: pool.address_1,
                     address: `${pool.chain_1}.${pool.address_1}`,
                 },
             };

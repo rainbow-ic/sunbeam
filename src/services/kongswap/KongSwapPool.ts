@@ -30,6 +30,7 @@ export class KongSwapPool extends CanisterWrapper implements IPool {
         this.poolData = poolData;
     }
     async swap(args: kongswap.SwapArgs): Promise<kongswap.SwapResponse> {
+        console.log("Swapping", args);
         const swapResult = await this.actor.swap({
             pay_token: args.tokenIn,
             pay_amount: args.amountIn,
