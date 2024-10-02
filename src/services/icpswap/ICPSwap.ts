@@ -22,7 +22,7 @@ export class ICPSwap extends CanisterWrapper implements IDex {
 
     async listTokens(): Promise<ICSToken[]> {
         const tokenData: PublicTokenOverview[] = await this.actor.getAllTokens();
-        const tokens = tokenData.map((data) => data);
+        const tokens: ICSToken[] = tokenData.map((data) => data);
         return tokens;
     }
 
