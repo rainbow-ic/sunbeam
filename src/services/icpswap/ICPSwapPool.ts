@@ -30,6 +30,10 @@ export class ICPSwapPool extends CanisterWrapper implements IPool {
         this.poolData = poolData;
     }
 
+    getPoolDetail(): PublicPoolOverView {
+        return this.poolData;
+    }
+
     getPoolData(): PoolData {
         const data = this.poolData;
         const [token1, token2] = this.getTokens();
