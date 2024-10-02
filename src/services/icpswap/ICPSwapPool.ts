@@ -187,10 +187,4 @@ export class ICPSwapPool extends CanisterWrapper implements IPool {
 
         return result;
     }
-    // getLPInfo?(): void {
-    //     throw new Error("Method not implemented.");
-    // }
-    // addLP?(): void {
-    //     throw new Error("Method not implemented.");
-    // }
 }
