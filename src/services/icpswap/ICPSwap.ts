@@ -1,5 +1,5 @@
 import { Actor, HttpAgent } from "@dfinity/agent";
-import { IDex, IPool, Token } from "../../types/ISwap";
+import { IDex, Token } from "../../types/ISwap";
 import { CanisterWrapper } from "../../types/CanisterWrapper";
 import { icsIndexNode } from "../../types/actors";
 import { PublicTokenOverview } from "../../types/actors/icswap/icpswapNodeIndex";
@@ -26,7 +26,7 @@ export class ICPSwap extends CanisterWrapper implements IDex {
         return tokens;
     }
 
-    async listPools(token1?: Token, token2?: Token): Promise<IPool[]> {
+    async listPools(token1?: Token, token2?: Token): Promise<ICPSwapPool[]> {
         let poolData = [];
         if (token2 && !token1) return await this.listPools(token2);
         if (token1) {
@@ -49,9 +49,9 @@ export class ICPSwap extends CanisterWrapper implements IDex {
         }
     }
 
-    async getPool(token1: Token, token2: Token): Promise<IPool> {
+    async getPool(token1: Token, token2: Token): Promise<ICPSwapPool> {
         // TODO: move imnplementation to shared code
-        const pools: IPool[] = await this.listPools(token1, token2);
+        const pools = await this.listPools(token1, token2);
         if (pools.length === 0) throw new Error("no matching pool found");
 
         // TODO?: add option to pick a pool if multiple exist for the selected tokens
