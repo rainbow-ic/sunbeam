@@ -2,8 +2,8 @@ import { Actor, HttpAgent } from "@dfinity/agent";
 import { IPool, kongswap, PoolData, Token } from "../../types";
 import { kongBackend } from "../../types/actors";
 import { CanisterWrapper } from "../../types/CanisterWrapper";
-import { ICSLPInfo } from "../../types/ICPSwap";
-import { KONGSWAP_BACKEND_CANISTER } from "../../constant";
+import { LPInfo } from "../../types/ICPSwap";
+import { KONGSWAP_BACKEND_TEST_CANISTER } from "../../constant";
 import { parseResultResponse } from "../../utils";
 
 type KongSwapActor = kongBackend._SERVICE;
@@ -21,7 +21,7 @@ export class KongSwapPool extends CanisterWrapper implements IPool {
         address?: string;
         poolData: PoolData;
     }) {
-        const id = address ?? KONGSWAP_BACKEND_CANISTER;
+        const id = address ?? KONGSWAP_BACKEND_TEST_CANISTER;
         super({ id, agent });
         this.actor = Actor.createActor(kongBackend.idlFactory, {
             agent,
@@ -29,7 +29,7 @@ export class KongSwapPool extends CanisterWrapper implements IPool {
         });
         this.poolData = poolData;
     }
-    async swap(args: kongswap.SwapArgs): Promise<kongswap.SwapResponse> {
+    async swap(args: kongswap.SwapInput): Promise<kongswap.SwapResponse> {
         console.log("Swapping", args);
         const swapResult = await this.actor.swap({
             pay_token: args.tokenIn,
@@ -44,7 +44,7 @@ export class KongSwapPool extends CanisterWrapper implements IPool {
         const res = parseResultResponse(swapResult);
         return res;
     }
-    async quote(args: kongswap.QuoteArgs): Promise<kongswap.QuoteResponse> {
+    async quote(args: kongswap.QuoteInput): Promise<kongswap.QuoteResponse> {
         const swapAmountResult = await this.actor.swap_amounts(
             args.tokenIn,
             args.amountIn,
@@ -76,7 +76,7 @@ export class KongSwapPool extends CanisterWrapper implements IPool {
     getTokens(): [Token, Token] {
         return [this.poolData.token1, this.poolData.token2];
     }
-    async getLPInfo(): Promise<ICSLPInfo> {
+    async getLPInfo(): Promise<LPInfo> {
         throw new Error("Method not implemented.");
     }
 }
