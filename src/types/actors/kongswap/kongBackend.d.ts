@@ -1,3 +1,4 @@
+import type { Principal } from "@dfinity/principal";
 import type { ActorMethod } from "@dfinity/agent";
 import type { IDL } from "@dfinity/candid";
 
@@ -29,12 +30,12 @@ export interface AddLiquidityReply {
     status: string;
     tx_id: bigint;
     add_lp_token_amount: bigint;
+    transfer_ids: Array<TransferIdReply>;
     amount_0: bigint;
     amount_1: bigint;
     claim_ids: BigUint64Array | bigint[];
     symbol_0: string;
     symbol_1: string;
-    tx_ids: Array<TxIdReply>;
     chain_0: string;
     chain_1: string;
     symbol: string;
@@ -58,12 +59,12 @@ export interface AddPoolReply {
     lp_token_symbol: string;
     balance: bigint;
     add_lp_token_amount: bigint;
+    transfer_ids: Array<TransferIdReply>;
     amount_0: bigint;
     amount_1: bigint;
     claim_ids: BigUint64Array | bigint[];
     symbol_0: string;
     symbol_1: string;
-    tx_ids: Array<TxIdReply>;
     chain_0: string;
     chain_1: string;
     lp_token_supply: bigint;
@@ -85,9 +86,23 @@ export interface BalancesReply {
     name: string;
     amount_0: number;
     amount_1: number;
+    symbol_0: string;
+    symbol_1: string;
     usd_amount_0: number;
     usd_amount_1: number;
     symbol: string;
+}
+export interface CheckPoolsReply {
+    expected_balance: ExpectedBalance;
+    diff_balance: bigint;
+    actual_balance: bigint;
+    symbol: string;
+}
+export type CheckPoolsResult = { Ok: Array<CheckPoolsReply> } | { Err: string };
+export interface ExpectedBalance {
+    balance: bigint;
+    pool_balances: Array<PoolExpectedBalance>;
+    unclaimed_claims: bigint;
 }
 export interface ICTokenReply {
     fee: bigint;
@@ -104,10 +119,12 @@ export interface ICTokenReply {
     symbol: string;
     on_kong: boolean;
 }
-export interface ICTxIdReply {
-    block_id: bigint;
+export interface ICTransferReply {
+    is_send: boolean;
+    block_index: bigint;
     chain: string;
     canister_id: string;
+    amount: bigint;
     symbol: string;
 }
 export interface LPTokenReply {
@@ -118,6 +135,7 @@ export interface LPTokenReply {
     chain: string;
     name: string;
     address: string;
+    pool_id_of: number;
     pool_symbol: string;
     total_supply: bigint;
     symbol: string;
@@ -130,6 +148,12 @@ export interface MessagesReply {
     message_id: bigint;
 }
 export type MessagesResult = { Ok: Array<MessagesReply> } | { Err: string };
+export interface PoolExpectedBalance {
+    balance: bigint;
+    kong_fee: bigint;
+    pool_symbol: string;
+    lp_fee: bigint;
+}
 export interface PoolsReply {
     lp_token_symbol: string;
     balance: bigint;
@@ -186,6 +210,7 @@ export interface RemoveLiquidityReply {
     request_id: bigint;
     status: string;
     tx_id: bigint;
+    transfer_ids: Array<TransferIdReply>;
     lp_fee_0: bigint;
     lp_fee_1: bigint;
     amount_0: bigint;
@@ -193,7 +218,6 @@ export interface RemoveLiquidityReply {
     claim_ids: BigUint64Array | bigint[];
     symbol_0: string;
     symbol_1: string;
-    tx_ids: Array<TxIdReply>;
     chain_0: string;
     chain_1: string;
     remove_lp_token_amount: bigint;
@@ -277,6 +301,7 @@ export interface SwapReply {
     request_id: bigint;
     status: string;
     tx_id: bigint;
+    transfer_ids: Array<TransferIdReply>;
     receive_chain: string;
     mid_price: number;
     pay_amount: bigint;
@@ -284,7 +309,6 @@ export interface SwapReply {
     claim_ids: BigUint64Array | bigint[];
     pay_symbol: string;
     receive_symbol: string;
-    tx_ids: Array<TxIdReply>;
     price: number;
     pay_chain: string;
     slippage: number;
@@ -305,8 +329,13 @@ export interface SwapTxReply {
 }
 export type TokenReply = { IC: ICTokenReply } | { LP: LPTokenReply };
 export type TokensResult = { Ok: Array<TokenReply> } | { Err: string };
-export type TxId = { BlockId: bigint } | { TransactionId: string };
-export type TxIdReply = { IC: ICTxIdReply };
+export interface TransferIdReply {
+    transfer_id: bigint;
+    transfer: TransferReply;
+}
+export type TransferReply = { IC: ICTransferReply };
+export type TransfersResult = { Ok: Array<TransferIdReply> } | { Err: string };
+export type TxId = { TransactionId: string } | { BlockIndex: bigint };
 export type TxsReply =
     | { AddLiquidity: AddLiquidityReply }
     | { Swap: SwapReply }
@@ -333,6 +362,10 @@ export interface _SERVICE {
     add_liquidity_async: ActorMethod<[AddLiquidityArgs], AddLiquidityAsyncResult>;
     add_pool: ActorMethod<[AddPoolArgs], AddPoolResult>;
     add_token: ActorMethod<[AddTokenArgs], AddTokenResult>;
+    check_pools: ActorMethod<[], CheckPoolsResult>;
+    get_requests: ActorMethod<[[] | [bigint]], RequestsResult>;
+    get_transfers: ActorMethod<[[] | [bigint]], TransfersResult>;
+    get_txs: ActorMethod<[[] | [bigint]], TxsResult>;
     get_user: ActorMethod<[], UserResult>;
     icrc1_name: ActorMethod<[], string>;
     messages: ActorMethod<[[] | [bigint]], MessagesResult>;
