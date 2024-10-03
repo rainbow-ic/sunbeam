@@ -13,5 +13,5 @@ fi
 echo "Publishing version $VERSION"
 
 npm version $VERSION
-git push && git push origin tag $VERSION
+git push origin tag $VERSION
 npm publish
