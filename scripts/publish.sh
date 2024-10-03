@@ -14,3 +14,4 @@ echo "Publishing version $VERSION"
 
 npm version $VERSION
 git push && git push --tags
+npm publish
