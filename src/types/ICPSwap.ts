@@ -1,4 +1,4 @@
-import { PoolMetadata as ActorPoolMetadata } from "./actors/icswap/icpswapPool";
+import { PoolMetadata as ActorPoolMetadata, SwapArgs } from "./actors/icswap/icpswapPool";
 import { Token as GeneralToken } from "./ISwap";
 
 export type LPInfo = {
@@ -26,11 +26,7 @@ export type Token = GeneralToken & {
 
 export type PoolMetadata = ActorPoolMetadata;
 
-export type SwapInput = {
-    tokenIn: Token;
-    amountIn: bigint;
-    amoundOutMinimum: bigint;
-};
+export type SwapInput = SwapArgs;
 
 export type QuoteInput = SwapInput;
 

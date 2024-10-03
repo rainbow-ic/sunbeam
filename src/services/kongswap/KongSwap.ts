@@ -1,5 +1,5 @@
 import { Actor, HttpAgent } from "@dfinity/agent";
-import { IDex, IPool, kongswap } from "../../types";
+import { IDex, IPool, kongswap, Token } from "../../types";
 import { kongBackend } from "../../types/actors";
 import { PublicPoolOverView } from "../../types/actors/icswap/icpswapNodeIndex";
 import { CanisterWrapper } from "../../types/CanisterWrapper";
@@ -110,8 +110,6 @@ export class KongSwap extends CanisterWrapper implements IDex {
             return [];
         }
 
-        console.log(result);
-
         const pools = result.map((pool) => {
             const poolData = {
                 address: `${pool.chain_0}.${pool.address_0}_${pool.chain_1}.${pool.address_1}`,
@@ -134,8 +132,26 @@ export class KongSwap extends CanisterWrapper implements IDex {
 
         return pools;
     }
-    getPool(token1: kongswap.GetPoolInput, token2: kongswap.GetPoolInput): Promise<IPool> {
-        throw new Error("Method not implemented.");
+    async getPool(token1: Token, token2: Token): Promise<IPool> {
+        if (token1.address === token2.address) {
+            throw new Error("Tokens must be different");
+        }
+        if (!token1.chain || !token2.chain) {
+            throw new Error("Chain must be provided");
+        }
+
+        const poolAddress = `${token1.chain}.${token1.address}_${token2.chain}.${token2.address}`;
+
+        const poolData = {
+            address: poolAddress,
+            token1,
+            token2,
+        };
+
+        const poolsRes = await this.actor.pools([token1.address]);
+        const result = parseResultResponse(poolsRes);
+
+        return Promise.resolve(new KongSwapPool({ poolData, agent: this.agent }));
     }
 
     getPoolsForToken(tokenPID: string): Promise<PublicPoolOverView[]> {

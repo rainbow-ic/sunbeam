@@ -9,6 +9,11 @@ export type Quote = {
 
 export type Token = {
     address: string;
+    // icpswap props
+    name?: string;
+    symbol?: string;
+    // kongswap props
+    chain?: string;
 };
 
 export type PoolData = {
@@ -17,21 +22,26 @@ export type PoolData = {
     token2: Token;
 };
 
-export type SwapInput = icpswap.SwapInput | kongswap.SwapInput;
+export type SwapInput = {
+    tokenIn: Token;
+    amountIn: bigint;
+    amountOut: bigint;
+    slippage: number;
+};
 
-export type SwapResponse = bigint | kongswap.SwapResponse;
+export type SwapResponse = bigint;
 
-export type QuoteInput = icpswap.QuoteInput | kongswap.QuoteInput;
+export type QuoteInput = Omit<SwapInput, "amountOut">;
 
-export type QuoteResponse = bigint | kongswap.QuoteResponse;
+export type QuoteResponse = bigint;
 
 export type GetMetadataResponse = icpswap.PoolMetadata | kongswap.PoolMetadata | null;
 
 export type GetLPInfoResponse = icpswap.LPInfo | null;
 
-export type ListPoolInput = icpswap.ListPoolsInput | kongswap.ListPoolsInput;
+export type ListPoolInput = Token;
 
-export type GetPoolInput = icpswap.GetPoolInput | kongswap.GetPoolInput;
+export type GetPoolInput = Token;
 
 export interface IPool {
     swap(args: SwapInput): Promise<SwapResponse>;
@@ -44,7 +54,7 @@ export interface IPool {
 }
 
 export interface IDex {
-    listTokens(): Promise<Token[] | kongswap.Token[]>;
+    listTokens(): Promise<Token[]>;
     listPools(token1?: ListPoolInput, token2?: ListPoolInput): Promise<IPool[]>;
     getPool(token1: GetPoolInput, token2: GetPoolInput): Promise<IPool>;
 }

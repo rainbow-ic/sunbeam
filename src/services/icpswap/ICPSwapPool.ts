@@ -1,9 +1,15 @@
 import { Actor } from "@dfinity/agent";
 import { HttpAgent } from "@dfinity/agent";
-import { IPool, PoolData, Token as IToken } from "../../types/ISwap";
+import {
+    IPool,
+    PoolData,
+    Token as IToken,
+    QuoteInput,
+    SwapInput,
+    SwapResponse,
+} from "../../types/ISwap";
 import {
     DepositArgs,
-    SwapArgs as ICSSwapArgs,
     PoolMetadata as ICSPoolMetadata,
 } from "../../types/actors/icswap/icpswapPool";
 import { parseResultResponse, validateCaller } from "../../utils";
@@ -80,9 +86,9 @@ export class ICPSwapPool extends CanisterWrapper implements IPool {
         return tokenAmountState;
     }
 
-    private toIcpSwapArgs(args: icswap.SwapInput): ICSSwapArgs {
+    private toSwapArgs(args: SwapInput | QuoteInput): icswap.SwapInput {
         const amountIn = args.amountIn.toString();
-        const amountOutMinimum = (args.amoundOutMinimum || 0).toString();
+        const amountOutMinimum = (args.slippage || 0).toString();
 
         const [token1, token2] = this.getTokens();
         const addrIn = args.tokenIn.address;
@@ -97,8 +103,8 @@ export class ICPSwapPool extends CanisterWrapper implements IPool {
             amountOutMinimum,
         };
     }
-    async quote(args: icswap.SwapInput): Promise<bigint> {
-        const res = await this.actor.quote(this.toIcpSwapArgs(args));
+    async quote(args: QuoteInput): Promise<bigint> {
+        const res = await this.actor.quote(this.toSwapArgs(args));
         const quote = parseResultResponse(res);
         return quote;
     }
@@ -115,11 +121,11 @@ export class ICPSwapPool extends CanisterWrapper implements IPool {
         return metadata;
     }
 
-    async swap(args: icswap.SwapInput): Promise<bigint> {
+    async swap(args: SwapInput): Promise<SwapResponse> {
         const caller = await this.agent.getPrincipal();
         validateCaller(caller);
 
-        const swapArgs = this.toIcpSwapArgs(args);
+        const swapArgs = this.toSwapArgs(args);
 
         // GET TOKEN INFO
         const { token0: meta1, token1: meta2 } = await this.getMetadata();
