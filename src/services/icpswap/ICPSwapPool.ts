@@ -1,19 +1,19 @@
 import { Actor } from "@dfinity/agent";
 import { HttpAgent } from "@dfinity/agent";
-import { IPool, PoolData, Token as IToken, SwapArgs } from "../../types/ISwap";
+import { IPool, PoolData, Token as IToken } from "../../types/ISwap";
 import {
     DepositArgs,
     SwapArgs as ICSSwapArgs,
     PoolMetadata as ICSPoolMetadata,
 } from "../../types/actors/icswap/icpswapPool";
 import { parseResultResponse, validateCaller } from "../../utils";
-import { TokenStandard } from "../../types";
+import { TokenStandard, icswap } from "../../types";
 import { Principal } from "@dfinity/principal";
 import { CanisterWrapper } from "../../types/CanisterWrapper";
 import { icsPool } from "../../types/actors";
 import { Token } from "@alpaca-icp/token-adapter";
 import { PublicPoolOverView } from "../../types/actors/icswap/icpswapNodeIndex";
-import { ICSLPInfo } from "../../types/ICPSwap";
+import { LPInfo } from "../../types/ICPSwap";
 
 type IcpswapPoolActor = icsPool._SERVICE;
 
@@ -74,13 +74,13 @@ export class ICPSwapPool extends CanisterWrapper implements IPool {
         };
         return [token1, token2];
     }
-    async getLPInfo(): Promise<ICSLPInfo> {
+    async getLPInfo(): Promise<LPInfo> {
         const tokenInPool = await this.actor.getTokenAmountState();
         const tokenAmountState = parseResultResponse(tokenInPool);
         return tokenAmountState;
     }
 
-    private toIcpSwapArgs(args: SwapArgs): ICSSwapArgs {
+    private toIcpSwapArgs(args: icswap.SwapInput): ICSSwapArgs {
         const amountIn = args.amountIn.toString();
         const amountOutMinimum = (args.amoundOutMinimum || 0).toString();
 
@@ -97,7 +97,7 @@ export class ICPSwapPool extends CanisterWrapper implements IPool {
             amountOutMinimum,
         };
     }
-    async quote(args: SwapArgs): Promise<bigint> {
+    async quote(args: icswap.SwapInput): Promise<bigint> {
         const res = await this.actor.quote(this.toIcpSwapArgs(args));
         const quote = parseResultResponse(res);
         return quote;
@@ -115,7 +115,7 @@ export class ICPSwapPool extends CanisterWrapper implements IPool {
         return metadata;
     }
 
-    async swap(args: SwapArgs): Promise<bigint> {
+    async swap(args: icswap.SwapInput): Promise<bigint> {
         const caller = await this.agent.getPrincipal();
         validateCaller(caller);
 

@@ -1,11 +1,10 @@
 import { Actor, HttpAgent } from "@dfinity/agent";
-import { IDex, Token } from "../../types/ISwap";
+import { icswap, IDex } from "../../types";
 import { CanisterWrapper } from "../../types/CanisterWrapper";
 import { icsIndexNode } from "../../types/actors";
 import { PublicTokenOverview } from "../../types/actors/icswap/icpswapNodeIndex";
 import { ICPSwapPool } from "./ICPSwapPool";
 import { ICPSWAP_NODE_INDEX_CANISTER } from "../../constant";
-import { ICSToken } from "../../types";
 type IndexNodeActor = icsIndexNode._SERVICE;
 
 export class ICPSwap extends CanisterWrapper implements IDex {
@@ -20,13 +19,16 @@ export class ICPSwap extends CanisterWrapper implements IDex {
         });
     }
 
-    async listTokens(): Promise<ICSToken[]> {
+    async listTokens(): Promise<icswap.Token[]> {
         const tokenData: PublicTokenOverview[] = await this.actor.getAllTokens();
-        const tokens: ICSToken[] = tokenData.map((data) => data);
+        const tokens: icswap.Token[] = tokenData.map((data) => data);
         return tokens;
     }
 
-    async listPools(token1?: Token, token2?: Token): Promise<ICPSwapPool[]> {
+    async listPools(
+        token1?: icswap.ListPoolsInput,
+        token2?: icswap.ListPoolsInput,
+    ): Promise<ICPSwapPool[]> {
         let poolData = [];
         if (token2 && !token1) return await this.listPools(token2);
         if (token1) {
@@ -49,7 +51,7 @@ export class ICPSwap extends CanisterWrapper implements IDex {
         }
     }
 
-    async getPool(token1: Token, token2: Token): Promise<ICPSwapPool> {
+    async getPool(token1: icswap.GetPoolInput, token2: icswap.GetPoolInput): Promise<ICPSwapPool> {
         // TODO: move imnplementation to shared code
         const pools = await this.listPools(token1, token2);
         if (pools.length === 0) throw new Error("no matching pool found");
