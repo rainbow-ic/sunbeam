@@ -4,7 +4,7 @@ import { kongBackend } from "../../types/actors";
 import { PublicPoolOverView } from "../../types/actors/icswap/icpswapNodeIndex";
 import { CanisterWrapper } from "../../types/CanisterWrapper";
 import { parseResultResponse } from "../../utils";
-import { KONGSWAP_BACKEND_CANISTER } from "../../constant";
+import { KONGSWAP_BACKEND_TEST_CANISTER } from "../../constant";
 import { KongSwapPool } from "./KongSwapPool";
 
 type KongSwapActor = kongBackend._SERVICE;
@@ -13,14 +13,14 @@ export class KongSwap extends CanisterWrapper implements IDex {
     private actor: KongSwapActor;
 
     constructor({ agent, address }: { agent: HttpAgent; address?: string }) {
-        const id = address ?? KONGSWAP_BACKEND_CANISTER;
+        const id = address ?? KONGSWAP_BACKEND_TEST_CANISTER;
         super({ id, agent });
         this.actor = Actor.createActor(kongBackend.idlFactory, {
             agent,
             canisterId: id,
         });
     }
-    async listTokens(): Promise<kongswap.KongSwapToken[]> {
+    async listTokens(): Promise<kongswap.Token[]> {
         const tokensRes = await this.actor.tokens(["all"]);
         const result = parseResultResponse(tokensRes);
         const response = result
@@ -45,11 +45,11 @@ export class KongSwap extends CanisterWrapper implements IDex {
                 }
                 return null;
             })
-            .filter((data) => data !== null) as kongswap.KongSwapToken[];
+            .filter((data) => data !== null) as kongswap.Token[];
         return response;
     }
 
-    async getToken(tokenId: string): Promise<kongswap.KongSwapToken | null> {
+    async getToken(tokenId: string): Promise<kongswap.Token | null> {
         const tokensRes = await this.actor.tokens([tokenId]);
         const result = parseResultResponse(tokensRes);
         const response = result
@@ -74,15 +74,15 @@ export class KongSwap extends CanisterWrapper implements IDex {
                 }
                 return null;
             })
-            .filter((data) => data !== null) as kongswap.KongSwapToken[];
+            .filter((data) => data !== null) as kongswap.Token[];
         if (response.length === 0) {
             return null;
         }
         return response[0];
     }
     async listPools(
-        token1?: kongswap.ListPoolToken,
-        token2?: kongswap.ListPoolToken,
+        token1?: kongswap.ListPoolsInput,
+        token2?: kongswap.ListPoolsInput,
     ): Promise<IPool[]> {
         let tokensRes;
 
@@ -134,7 +134,7 @@ export class KongSwap extends CanisterWrapper implements IDex {
 
         return pools;
     }
-    getPool(token1: kongswap.KongSwapToken, token2: kongswap.KongSwapToken): Promise<IPool> {
+    getPool(token1: kongswap.GetPoolInput, token2: kongswap.GetPoolInput): Promise<IPool> {
         throw new Error("Method not implemented.");
     }
 
