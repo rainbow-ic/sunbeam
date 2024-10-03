@@ -1,5 +1,4 @@
-import { PoolMetadata as ICSPoolMetadata } from "./actors/icswap/icpswapPool";
-import { ICSLPInfo, ICSToken } from "./ICPSwap";
+import * as icpswap from "./ICPSwap";
 import * as kongswap from "./KongSwap";
 export type Quote = {
     amountIn: bigint;
@@ -9,8 +8,6 @@ export type Quote = {
 };
 
 export type Token = {
-    symbol: string;
-    name: string;
     address: string;
 };
 
@@ -20,26 +17,34 @@ export type PoolData = {
     token2: Token;
 };
 
-export type SwapArgs = {
-    tokenIn: Token;
-    amountIn: bigint;
-    amoundOutMinimum?: bigint;
-};
+export type SwapInput = icpswap.SwapInput | kongswap.SwapInput;
 
-export type ListPoolToken = Token | kongswap.ListPoolToken;
+export type SwapResponse = bigint | kongswap.SwapResponse;
+
+export type QuoteInput = icpswap.QuoteInput | kongswap.QuoteInput;
+
+export type QuoteResponse = bigint | kongswap.QuoteResponse;
+
+export type GetMetadataResponse = icpswap.PoolMetadata | kongswap.PoolMetadata | null;
+
+export type GetLPInfoResponse = icpswap.LPInfo | null;
+
+export type ListPoolInput = icpswap.ListPoolsInput | kongswap.ListPoolsInput;
+
+export type GetPoolInput = icpswap.GetPoolInput | kongswap.GetPoolInput;
 
 export interface IPool {
-    swap(args: SwapArgs | kongswap.SwapArgs): Promise<bigint | kongswap.SwapResponse>;
-    quote(args: SwapArgs | kongswap.QuoteArgs): Promise<bigint | kongswap.QuoteResponse>;
-    getMetadata(): Promise<ICSPoolMetadata | kongswap.PoolMetadata | null>;
+    swap(args: SwapInput): Promise<SwapResponse>;
+    quote(args: QuoteInput): Promise<QuoteResponse>;
+    getMetadata(): Promise<GetMetadataResponse>;
     getPoolData(): PoolData;
     isForToken(token: Token): boolean;
     getTokens(): [Token, Token];
-    getLPInfo(): Promise<ICSLPInfo>;
+    getLPInfo(): Promise<GetLPInfoResponse>;
 }
 
 export interface IDex {
-    listTokens(): Promise<ICSToken[] | kongswap.KongSwapToken[]>;
-    listPools(token1?: ListPoolToken, token2?: ListPoolToken): Promise<IPool[]>;
-    getPool(token1: ListPoolToken, token2: ListPoolToken): Promise<IPool>;
+    listTokens(): Promise<Token[] | kongswap.Token[]>;
+    listPools(token1?: ListPoolInput, token2?: ListPoolInput): Promise<IPool[]>;
+    getPool(token1: GetPoolInput, token2: GetPoolInput): Promise<IPool>;
 }
