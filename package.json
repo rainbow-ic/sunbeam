@@ -6,6 +6,7 @@
     "scripts": {
         "prepare": "husky",
         "format": "prettier --write .",
+        "docs": "cd docs && npx docusaurus start",
         "test": "jest",
         "test:cov": "jest --coverage",
         "lint": "eslint .",
