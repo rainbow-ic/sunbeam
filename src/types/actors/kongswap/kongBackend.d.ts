@@ -92,6 +92,18 @@ export interface BalancesReply {
     usd_amount_1: number;
     symbol: string;
 }
+export interface CanisterStatusResponse {
+    status: CanisterStatusType;
+    memory_size: bigint;
+    cycles: bigint;
+    settings: DefiniteCanisterSettings;
+    query_stats: QueryStats;
+    idle_cycles_burned_per_day: bigint;
+    module_hash: [] | [Uint8Array | number[]];
+    reserved_cycles: bigint;
+}
+export type CanisterStatusResult = { Ok: CanisterStatusResponse } | { Err: string };
+export type CanisterStatusType = { stopped: null } | { stopping: null } | { running: null };
 export interface CheckPoolsReply {
     expected_balance: ExpectedBalance;
     diff_balance: bigint;
@@ -99,6 +111,15 @@ export interface CheckPoolsReply {
     symbol: string;
 }
 export type CheckPoolsResult = { Ok: Array<CheckPoolsReply> } | { Err: string };
+export interface DefiniteCanisterSettings {
+    freezing_threshold: bigint;
+    controllers: Array<Principal>;
+    reserved_cycles_limit: bigint;
+    log_visibility: LogVisibility;
+    wasm_memory_limit: bigint;
+    memory_allocation: bigint;
+    compute_allocation: bigint;
+}
 export interface ExpectedBalance {
     balance: bigint;
     pool_balances: Array<PoolExpectedBalance>;
@@ -141,6 +162,7 @@ export interface LPTokenReply {
     symbol: string;
     on_kong: boolean;
 }
+export type LogVisibility = { controllers: null } | { public: null };
 export interface MessagesReply {
     ts: bigint;
     title: string;
@@ -154,7 +176,7 @@ export interface PoolExpectedBalance {
     pool_symbol: string;
     lp_fee: bigint;
 }
-export interface PoolsReply {
+export interface PoolReply {
     lp_token_symbol: string;
     balance: bigint;
     total_lp_fee: bigint;
@@ -181,7 +203,20 @@ export interface PoolsReply {
     lp_fee_bps: number;
     on_kong: boolean;
 }
-export type PoolsResult = { Ok: Array<PoolsReply> } | { Err: string };
+export interface PoolsReply {
+    total_24h_lp_fee: bigint;
+    total_tvl: bigint;
+    total_24h_volume: bigint;
+    pools: Array<PoolReply>;
+    total_24h_num_swaps: bigint;
+}
+export type PoolsResult = { Ok: PoolsReply } | { Err: string };
+export interface QueryStats {
+    response_payload_bytes_total: bigint;
+    num_instructions_total: bigint;
+    num_calls_total: bigint;
+    request_payload_bytes_total: bigint;
+}
 export interface RemoveLiquidityAmountsReply {
     lp_fee_0: bigint;
     lp_fee_1: bigint;
@@ -362,6 +397,7 @@ export interface _SERVICE {
     add_liquidity_async: ActorMethod<[AddLiquidityArgs], AddLiquidityAsyncResult>;
     add_pool: ActorMethod<[AddPoolArgs], AddPoolResult>;
     add_token: ActorMethod<[AddTokenArgs], AddTokenResult>;
+    canister_status: ActorMethod<[], CanisterStatusResult>;
     check_pools: ActorMethod<[], CheckPoolsResult>;
     get_requests: ActorMethod<[[] | [bigint]], RequestsResult>;
     get_transfers: ActorMethod<[[] | [bigint]], TransfersResult>;
