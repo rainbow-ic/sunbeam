@@ -78,6 +78,13 @@ export type GetLPInfoResponse = LPInfo | null;
  * @typedef {Object} LPInfo
  * @property {string} token1Address - The address of the first token in the liquidity pool.
  * @property {string} token2Address - The address of the second token in the liquidity pool.
+ * @property {string} token1Symbol - The symbol of the first token in the liquidity pool.
+ * @property {string} token2Symbol - The symbol of the second token in the liquidity pool.
+ * @property {number} token1Balance - The balance of the first token in the liquidity pool.
+ * @property {number} token2Balance - The balance of the second token in the liquidity pool.
+ * @property {number} lpFeeToken1 - The liquidity pool fee for the first token.
+ * @property {number} lpFeeToken2 - The liquidity pool fee for the second token.
+ * @property {number} lpFee - The fee of the liquidity pool.
  * @property {number} price - The price of the liquidity pool.
  */
 export type LPInfo = {
