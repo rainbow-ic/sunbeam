@@ -1,10 +1,5 @@
-import {
-    LPTokenReply,
-    PoolsReply,
-    SwapAmountsReply,
-    SwapReply,
-} from "./actors/kongswap/kongBackend";
-import { Token as GeneralToken } from "./ISwap";
+import { PoolReply } from "./actors/kongswap/kongBackend";
+import { Token as GeneralToken, PoolData } from "./ISwap";
 
 export type Token = GeneralToken & {
     fee: bigint;
@@ -28,15 +23,6 @@ export type SwapInput = {
     slippage: number;
 };
 
-export type QuoteInput = {
-    tokenIn: string;
-    amountIn: bigint;
-    tokenOut: string;
-};
+export type PoolMetadata = PoolReply;
 
-export type ListPoolsInput = Pick<Token, "address" | "chain">;
-export type GetPoolInput = Pick<Token, "address" | "chain">;
-export type SwapResponse = SwapReply;
-export type QuoteResponse = SwapAmountsReply;
-export type KongSwapLPToken = LPTokenReply;
-export type PoolMetadata = PoolsReply;
+export type PoolInfo = PoolReply & PoolData;

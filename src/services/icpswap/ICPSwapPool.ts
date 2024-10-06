@@ -7,6 +7,7 @@ import {
     QuoteInput,
     SwapInput,
     SwapResponse,
+    GetLPInfoResponse,
 } from "../../types/ISwap";
 import {
     DepositArgs,
@@ -19,29 +20,29 @@ import { CanisterWrapper } from "../../types/CanisterWrapper";
 import { icsPool } from "../../types/actors";
 import { Token } from "@alpaca-icp/token-adapter";
 import { PublicPoolOverView } from "../../types/actors/icswap/icpswapNodeIndex";
-import { LPInfo } from "../../types/ICPSwap";
+import { PoolInfo } from "../../types/ICPSwap";
 
 type IcpswapPoolActor = icsPool._SERVICE;
 
 export class ICPSwapPool extends CanisterWrapper implements IPool {
     private actor: IcpswapPoolActor;
-    private poolData: PublicPoolOverView;
+    private poolInfo: PoolInfo;
 
-    constructor({ agent, poolData }: { agent: HttpAgent; poolData: PublicPoolOverView }) {
+    constructor({ agent, poolData }: { agent: HttpAgent; poolData: PoolInfo }) {
         super({ id: poolData.pool, agent });
         this.actor = Actor.createActor(icsPool.idlFactory, {
             agent,
             canisterId: poolData.pool,
         });
-        this.poolData = poolData;
+        this.poolInfo = poolData;
     }
 
     getPoolDetail(): PublicPoolOverView {
-        return this.poolData;
+        return this.poolInfo;
     }
 
     getPoolData(): PoolData {
-        const data = this.poolData;
+        const data = this.poolInfo;
         const [token1, token2] = this.getTokens();
         return {
             address: data.pool,
@@ -52,20 +53,20 @@ export class ICPSwapPool extends CanisterWrapper implements IPool {
 
     isForToken(token: IToken): boolean {
         const addr = token.address;
-        if (this.poolData.token0Id === addr) return true;
-        if (this.poolData.token1Id === addr) return true;
+        if (this.poolInfo.token0Id === addr) return true;
+        if (this.poolInfo.token1Id === addr) return true;
         return false;
     }
 
     isZeroForOne(token: IToken): boolean {
         const addr = token.address;
-        if (this.poolData.token0Id === addr) return true;
-        if (this.poolData.token1Id === addr) return false;
+        if (this.poolInfo.token0Id === addr) return true;
+        if (this.poolInfo.token1Id === addr) return false;
         throw new Error("token not in pool");
     }
 
     getTokens(): [IToken, IToken] {
-        const data = this.poolData;
+        const data = this.poolInfo;
         const token1 = {
             symbol: data.token0Symbol,
             name: data.token0Symbol,
@@ -80,10 +81,22 @@ export class ICPSwapPool extends CanisterWrapper implements IPool {
         };
         return [token1, token2];
     }
-    async getLPInfo(): Promise<LPInfo> {
+    async getLPInfo(): Promise<GetLPInfoResponse> {
         const tokenInPool = await this.actor.getTokenAmountState();
         const tokenAmountState = parseResultResponse(tokenInPool);
-        return tokenAmountState;
+
+        return {
+            token1Address: this.poolInfo.token0Id,
+            token2Address: this.poolInfo.token1Id,
+            token1Symbol: this.poolInfo.token0Symbol,
+            token2Symbol: this.poolInfo.token1Symbol,
+            token1Balance: tokenAmountState.token0Amount,
+            token2Balance: tokenAmountState.token1Amount,
+            lpFeeToken1: tokenAmountState.swapFee0Repurchase,
+            lpFeeToken2: tokenAmountState.swapFee1Repurchase,
+            lpFee: Number(this.poolInfo.feeTier),
+            price: this.poolInfo.sqrtPrice,
+        };
     }
 
     private toSwapArgs(args: SwapInput | QuoteInput): icswap.SwapInput {

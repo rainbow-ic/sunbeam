@@ -1,13 +1,6 @@
+import { PublicPoolOverView } from "./actors/icswap/icpswapNodeIndex";
 import { PoolMetadata as ActorPoolMetadata, SwapArgs } from "./actors/icswap/icpswapPool";
 import { Token as GeneralToken } from "./ISwap";
-
-export type LPInfo = {
-    swapFee0Repurchase: bigint;
-    token0Amount: bigint;
-    swapFeeReceiver: string;
-    token1Amount: bigint;
-    swapFee1Repurchase: bigint;
-};
 
 export type Token = GeneralToken & {
     standard: string;
@@ -28,12 +21,4 @@ export type PoolMetadata = ActorPoolMetadata;
 
 export type SwapInput = SwapArgs;
 
-export type QuoteInput = SwapInput;
-
-export type ListPoolsInput = Pick<Token, "address" | "symbol" | "name">;
-
-export type GetPoolInput = Pick<Token, "address" | "symbol" | "name">;
-
-export type SwapResponse = bigint;
-
-export type QuoteResponse = bigint;
+export type PoolInfo = PublicPoolOverView;
