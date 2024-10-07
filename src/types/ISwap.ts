@@ -224,15 +224,6 @@ export interface IPool {
      * This method return the general LP info
      */
     getLPInfo(): Promise<GetLPInfoResponse>;
-
-    /**
-     * Gets the maximum slippage.
-     *
-     * @returns {number} The maximum slippage.
-     *
-     * @remarks This method is only applicable for kongswap.
-     */
-    getMaxSlippage?(input: QuoteInput): Promise<number>;
 }
 
 export interface IDex {
