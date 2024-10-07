@@ -1,5 +1,6 @@
-import { Actor, HttpAgent } from "@dfinity/agent";
+import { Actor } from "@dfinity/agent";
 import {
+    Agent,
     GetLPInfoResponse,
     IPool,
     kongswap,
@@ -38,7 +39,7 @@ export class KongSwapPool extends CanisterWrapper implements IPool {
         address,
         poolInfo,
     }: {
-        agent: HttpAgent;
+        agent: Agent;
         address?: string;
         poolInfo: PoolInfo;
     }) {

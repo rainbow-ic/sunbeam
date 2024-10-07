@@ -36,10 +36,13 @@
     },
     "dependencies": {
         "@alpaca-icp/token-adapter": "^1.0.10",
-        "@dfinity/agent": "^2.0.0",
-        "@dfinity/candid": "^2.0.0",
-        "@dfinity/principal": "^2.0.0",
-        "@ic-reactor/core": "^1.8.0"
+        "@dfinity/agent": "^2.1.2",
+        "@dfinity/candid": "^2.1.2",
+        "@dfinity/ledger-icrc": "^2.6.0",
+        "@dfinity/principal": "^2.1.2",
+        "@ic-reactor/core": "^1.8.0",
+        "@slide-computer/signer": "^3.6.4",
+        "@slide-computer/signer-agent": "^3.6.4"
     },
     "directories": {
         "test": "tests"

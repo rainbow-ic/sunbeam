@@ -38,7 +38,8 @@ export class ICPSwap extends CanisterWrapper implements IDex {
             (poolData) =>
                 new ICPSwapPool({
                     poolData: poolData,
-                    agent: this.agent,
+                    //TODO: fix later to Agent
+                    agent: this.agent as HttpAgent,
                 }),
         );
         if (token2) {

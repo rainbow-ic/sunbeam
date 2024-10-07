@@ -152,7 +152,8 @@ export class ICPSwapPool extends CanisterWrapper implements IPool {
             tokenSwapInstance = new Token({
                 canisterId: meta1.address,
                 tokenStandard: meta1.standard as TokenStandard,
-                agent: this.agent,
+                // TODO: fix later with Agent
+                agent: this.agent as HttpAgent,
             });
             fee = await tokenSwapInstance.getFee();
             tokenAddress = meta1.address;
@@ -161,7 +162,8 @@ export class ICPSwapPool extends CanisterWrapper implements IPool {
             tokenSwapInstance = new Token({
                 canisterId: meta2.address,
                 tokenStandard: meta2.standard as TokenStandard,
-                agent: this.agent,
+                // TODO: fix later with Agent
+                agent: this.agent as HttpAgent,
             });
             fee = await tokenSwapInstance.getFee();
             tokenAddress = meta2.address;

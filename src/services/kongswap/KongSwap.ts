@@ -158,6 +158,6 @@ export class KongSwap extends CanisterWrapper implements IDex {
             token2,
         };
 
-        return Promise.resolve(new KongSwapPool({ poolInfo, agent: this.agent }));
+        return new KongSwapPool({ poolInfo, agent: this.agent });
     }
 }
