@@ -132,7 +132,7 @@ export class KongSwap extends CanisterWrapper implements IDex {
         return poolsObj;
     }
 
-    async getPool(token1: Token, token2: Token): Promise<IPool> {
+    async getPool(token1: Token, token2: Token): Promise<KongSwapPool> {
         if (token1.address === token2.address) {
             throw new Error("Tokens must be different");
         }

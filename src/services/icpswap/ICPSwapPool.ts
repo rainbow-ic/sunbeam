@@ -2,7 +2,6 @@ import { Actor } from "@dfinity/agent";
 import { HttpAgent } from "@dfinity/agent";
 import {
     IPool,
-    PoolData,
     Token as IToken,
     QuoteInput,
     SwapInput,
@@ -19,7 +18,6 @@ import { Principal } from "@dfinity/principal";
 import { CanisterWrapper } from "../../types/CanisterWrapper";
 import { icsPool } from "../../types/actors";
 import { Token } from "@alpaca-icp/token-adapter";
-import { PublicPoolOverView } from "../../types/actors/icswap/icpswapNodeIndex";
 import { PoolInfo } from "../../types/ICPSwap";
 
 type IcpswapPoolActor = icsPool._SERVICE;
@@ -36,19 +34,8 @@ export class ICPSwapPool extends CanisterWrapper implements IPool {
         });
         this.poolInfo = poolData;
     }
-
-    getPoolDetail(): PublicPoolOverView {
+    getPoolInfo(): PoolInfo {
         return this.poolInfo;
-    }
-
-    getPoolData(): PoolData {
-        const data = this.poolInfo;
-        const [token1, token2] = this.getTokens();
-        return {
-            address: data.pool,
-            token1,
-            token2,
-        };
     }
 
     isForToken(token: IToken): boolean {

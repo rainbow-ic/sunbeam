@@ -52,6 +52,9 @@ export class KongSwapPool extends CanisterWrapper implements IPool {
         });
         this.poolInfo = poolInfo;
     }
+    getPoolInfo(): kongswap.PoolInfo {
+        return this.poolInfo;
+    }
 
     private toSwapArgs(args: SwapInput): kongswap.SwapInput {
         const [token1, token2] = this.getTokens();
@@ -167,6 +170,8 @@ export class KongSwapPool extends CanisterWrapper implements IPool {
         return {
             token1Address: this.poolInfo.address_0,
             token2Address: this.poolInfo.address_1,
+            token1Chain: this.poolInfo.chain_0,
+            token2Chain: this.poolInfo.chain_1,
             token1Symbol: this.poolInfo.symbol_0,
             token2Symbol: this.poolInfo.symbol_1,
             token1Balance: this.poolInfo.balance_0,

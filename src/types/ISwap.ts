@@ -70,6 +70,8 @@ export type QuoteResponse = bigint;
 
 export type GetMetadataResponse = icpswap.PoolMetadata | kongswap.PoolMetadata | null;
 
+export type PoolInfoResponse = icpswap.PoolInfo | kongswap.PoolInfo | null;
+
 export type GetLPInfoResponse = LPInfo | null;
 
 /**
@@ -108,6 +110,23 @@ export type LPInfo = {
      */
     token2Address: string;
 
+    /**
+     * The chain of the first token in the liquidity pool.
+     *
+     * @type {string}
+     *
+     * @source kongswap - Corresponds to PoolReply `chain_0`
+     */
+    token1Chain?: string;
+
+    /**
+     * The chain of the second token in the liquidity pool.
+     *
+     * @type {string}
+     *
+     * @source kongswap - Corresponds to PoolReply `chain_1`
+     */
+    token2Chain?: string;
     /**
      * The symbol of the first token in the liquidity pool.
      *
@@ -195,10 +214,25 @@ export interface IPool {
     swap(args: SwapInput): Promise<SwapResponse>;
     quote(args: QuoteInput): Promise<QuoteResponse>;
     getMetadata(): Promise<GetMetadataResponse>;
-    getPoolData(): PoolData;
     isForToken(token: Token): boolean;
     getTokens(): [Token, Token];
+    /**
+     * This method return the pool info from the private props, the type is based on the dex
+     */
+    getPoolInfo(): PoolInfoResponse;
+    /**
+     * This method return the general LP info
+     */
     getLPInfo(): Promise<GetLPInfoResponse>;
+
+    /**
+     * Gets the maximum slippage.
+     *
+     * @returns {number} The maximum slippage.
+     *
+     * @remarks This method is only applicable for kongswap.
+     */
+    getMaxSlippage?(input: QuoteInput): Promise<number>;
 }
 
 export interface IDex {
