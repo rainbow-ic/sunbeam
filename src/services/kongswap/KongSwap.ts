@@ -20,6 +20,7 @@ export class KongSwap extends CanisterWrapper implements IDex {
             canisterId: id,
         });
     }
+
     async listTokens(): Promise<kongswap.Token[]> {
         const tokensRes = await this.actor.tokens(["all"]);
         const result = parseResultResponse(tokensRes);
@@ -131,8 +132,7 @@ export class KongSwap extends CanisterWrapper implements IDex {
 
         return poolsObj;
     }
-
-    async getPool(token1: Token, token2: Token): Promise<KongSwapPool> {
+    async getPool(token1: Token, token2: Token): Promise<KongSwapPool | null> {
         if (token1.address === token2.address) {
             throw new Error("Tokens must be different");
         }
@@ -156,6 +156,33 @@ export class KongSwap extends CanisterWrapper implements IDex {
             address: poolAddress,
             token1,
             token2,
+        };
+
+        return new KongSwapPool({ poolInfo, agent: this.agent });
+    }
+
+    async getPoolByAddress(address: string): Promise<KongSwapPool | null> {
+        const poolsRes = await this.actor.pools([address]);
+        const result = parseResultResponse(poolsRes);
+
+        if (result.pools.length === 0) {
+            throw new Error("Pool not found");
+        }
+
+        const poolReply = result.pools[0];
+        const poolInfo: PoolInfo = {
+            ...poolReply,
+            address: address,
+            token1: {
+                symbol: poolReply.symbol_0,
+                name: poolReply.address_0,
+                address: poolReply.address_0,
+            },
+            token2: {
+                symbol: poolReply.symbol_1,
+                name: poolReply.address_1,
+                address: poolReply.address_1,
+            },
         };
 
         return new KongSwapPool({ poolInfo, agent: this.agent });

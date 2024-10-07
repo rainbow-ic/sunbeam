@@ -26,13 +26,13 @@ export class ICPSwapPool extends CanisterWrapper implements IPool {
     private actor: IcpswapPoolActor;
     private poolInfo: PoolInfo;
 
-    constructor({ agent, poolData }: { agent: HttpAgent; poolData: PoolInfo }) {
-        super({ id: poolData.pool, agent });
+    constructor({ agent, poolInfo }: { agent: HttpAgent; poolInfo: PoolInfo }) {
+        super({ id: poolInfo.pool, agent });
         this.actor = Actor.createActor(icsPool.idlFactory, {
             agent,
-            canisterId: poolData.pool,
+            canisterId: poolInfo.pool,
         });
-        this.poolInfo = poolData;
+        this.poolInfo = poolInfo;
     }
     getPoolInfo(): PoolInfo {
         return this.poolInfo;

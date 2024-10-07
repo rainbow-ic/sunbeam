@@ -1,5 +1,5 @@
 import { Actor, HttpAgent } from "@dfinity/agent";
-import { GetPoolInput, icswap, IDex, ListPoolInput } from "../../types";
+import { GetPoolInput, icswap, IDex, IPool, ListPoolInput } from "../../types";
 import { CanisterWrapper } from "../../types/CanisterWrapper";
 import { icsIndexNode } from "../../types/actors";
 import { PublicTokenOverview } from "../../types/actors/icswap/icpswapNodeIndex";
@@ -37,7 +37,7 @@ export class ICPSwap extends CanisterWrapper implements IDex {
         const pools = poolData.map(
             (poolData) =>
                 new ICPSwapPool({
-                    poolData: poolData,
+                    poolInfo: poolData,
                     //TODO: fix later to Agent
                     agent: this.agent as HttpAgent,
                 }),
@@ -49,10 +49,21 @@ export class ICPSwap extends CanisterWrapper implements IDex {
         }
     }
 
-    async getPool(token1: GetPoolInput, token2: GetPoolInput): Promise<ICPSwapPool> {
+    async getPoolByAddress(address: string): Promise<IPool | null> {
+        const poolData = (await this.actor.getAllPools()).filter((pool) => pool.pool === address);
+
+        if (poolData.length === 0) return null;
+
+        return new ICPSwapPool({
+            agent: this.agent as HttpAgent,
+            poolInfo: poolData[0],
+        });
+    }
+
+    async getPool(token1: GetPoolInput, token2: GetPoolInput): Promise<ICPSwapPool | null> {
         // TODO: move imnplementation to shared code
         const pools = await this.listPools(token1, token2);
-        if (pools.length === 0) throw new Error("no matching pool found");
+        if (pools.length === 0) return null;
 
         // TODO?: add option to pick a pool if multiple exist for the selected tokens
         if (pools.length > 1) throw new Error("multiple pools found for this pair");
