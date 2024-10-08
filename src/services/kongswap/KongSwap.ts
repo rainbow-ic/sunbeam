@@ -117,11 +117,13 @@ export class KongSwap extends CanisterWrapper implements IDex {
                     symbol: pool.symbol_0,
                     name: pool.address_0,
                     address: `${pool.chain_0}.${pool.address_0}`,
+                    chain: pool.chain_0,
                 },
                 token2: {
                     symbol: pool.symbol_1,
                     name: pool.address_1,
                     address: `${pool.chain_1}.${pool.address_1}`,
+                    chain: pool.chain_1,
                 },
             };
             return new KongSwapPool({
@@ -176,11 +178,13 @@ export class KongSwap extends CanisterWrapper implements IDex {
                 symbol: poolReply.symbol_0,
                 name: poolReply.address_0,
                 address: poolReply.address_0,
+                chain: poolReply.chain_0,
             },
             token2: {
                 symbol: poolReply.symbol_1,
                 name: poolReply.address_1,
                 address: poolReply.address_1,
+                chain: poolReply.chain_1,
             },
         };
 
