@@ -1,6 +1,6 @@
 {
     "name": "@rainbow-ic/sunbeam",
-    "version": "0.0.8-alpha-17",
+    "version": "0.0.8-alpha-18",
     "main": "src/index.ts",
     "type": "module",
     "scripts": {
