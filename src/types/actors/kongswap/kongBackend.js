@@ -478,6 +478,6 @@ export const idlFactory = ({ IDL }) => {
         user_balances: IDL.Func([IDL.Opt(IDL.Text)], [UserBalancesResult], ["query"]),
     });
 };
-export const init = ({ IDL }) => {
+export const init = ({}) => {
     return [];
 };

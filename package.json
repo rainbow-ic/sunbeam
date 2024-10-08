@@ -9,7 +9,8 @@
         "test": "jest",
         "test:cov": "jest --coverage",
         "lint": "eslint .",
-        "dev": "npx tsx src/index.ts"
+        "dev": "npx tsx src/index.ts",
+        "build": "tsc -b"
     },
     "lint-staged": {
         "**/*": "prettier --write --ignore-unknown"
