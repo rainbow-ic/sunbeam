@@ -1,5 +1,5 @@
-import { Actor, HttpAgent } from "@dfinity/agent";
-import { IDex, IPool, kongswap, Token } from "../../types";
+import { Actor } from "@dfinity/agent";
+import { Agent, IDex, IPool, kongswap, Token } from "../../types";
 import { kongBackend } from "../../types/actors";
 import { CanisterWrapper } from "../../types/CanisterWrapper";
 import { parseResultResponse } from "../../utils";
@@ -12,7 +12,7 @@ type KongSwapActor = kongBackend._SERVICE;
 export class KongSwap extends CanisterWrapper implements IDex {
     private actor: KongSwapActor;
 
-    constructor({ agent, address }: { agent: HttpAgent; address?: string }) {
+    constructor({ agent, address }: { agent: Agent; address?: string }) {
         const id = address ?? KONGSWAP_BACKEND_TEST_CANISTER;
         super({ id, agent });
         this.actor = Actor.createActor(kongBackend.idlFactory, {
