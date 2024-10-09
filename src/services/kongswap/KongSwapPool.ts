@@ -13,7 +13,6 @@ import {
 } from "../../types";
 import { kongBackend } from "../../types/actors";
 import { CanisterWrapper } from "../../types/CanisterWrapper";
-import { KONGSWAP_BACKEND_TEST_CANISTER } from "../../constant";
 import { parseResultResponse } from "../../utils";
 import { PoolInfo } from "../../types/KongSwap";
 
@@ -40,10 +39,10 @@ export class KongSwapPool extends CanisterWrapper implements IPool {
         poolInfo,
     }: {
         agent: Agent;
-        address?: string;
+        address: string;
         poolInfo: PoolInfo;
     }) {
-        const id = address ?? KONGSWAP_BACKEND_TEST_CANISTER;
+        const id = address;
         super({ id, agent });
 
         this.actor = Actor.createActor(kongBackend.idlFactory, {

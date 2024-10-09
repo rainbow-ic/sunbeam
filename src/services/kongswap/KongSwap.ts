@@ -3,7 +3,6 @@ import { Agent, IDex, IPool, kongswap, Token } from "../../types";
 import { kongBackend } from "../../types/actors";
 import { CanisterWrapper } from "../../types/CanisterWrapper";
 import { parseResultResponse } from "../../utils";
-import { KONGSWAP_BACKEND_TEST_CANISTER } from "../../constant";
 import { KongSwapPool } from "./KongSwapPool";
 import { PoolInfo } from "../../types/KongSwap";
 
@@ -12,8 +11,8 @@ type KongSwapActor = kongBackend._SERVICE;
 export class KongSwap extends CanisterWrapper implements IDex {
     private actor: KongSwapActor;
 
-    constructor({ agent, address }: { agent: Agent; address?: string }) {
-        const id = address ?? KONGSWAP_BACKEND_TEST_CANISTER;
+    constructor({ agent, address }: { agent: Agent; address: string }) {
+        const id = address;
         super({ id, agent });
         this.actor = Actor.createActor(kongBackend.idlFactory, {
             agent,
