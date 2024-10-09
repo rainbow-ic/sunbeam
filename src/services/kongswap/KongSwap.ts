@@ -128,6 +128,7 @@ export class KongSwap extends CanisterWrapper implements IDex {
             return new KongSwapPool({
                 poolInfo: poolInfo,
                 agent: this.agent,
+                address: this.id,
             });
         });
 
@@ -159,7 +160,7 @@ export class KongSwap extends CanisterWrapper implements IDex {
             token2,
         };
 
-        return new KongSwapPool({ poolInfo, agent: this.agent });
+        return new KongSwapPool({ poolInfo, agent: this.agent, address: this.id });
     }
     async getPoolByAddress(address: string): Promise<KongSwapPool | null> {
         const poolsRes = await this.actor.pools([address]);
@@ -187,6 +188,10 @@ export class KongSwap extends CanisterWrapper implements IDex {
             },
         };
 
-        return new KongSwapPool({ poolInfo, agent: this.agent });
+        return new KongSwapPool({
+            poolInfo,
+            agent: this.agent,
+            address: this.id,
+        });
     }
 }
