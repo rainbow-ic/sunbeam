@@ -1,6 +1,5 @@
-import { Actor } from "@dfinity/agent";
+import { Actor, Agent } from "@dfinity/agent";
 import {
-    Agent,
     GetLPInfoResponse,
     IPool,
     kongswap,

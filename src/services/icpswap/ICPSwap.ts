@@ -1,4 +1,4 @@
-import { Actor, HttpAgent } from "@dfinity/agent";
+import { Actor, Agent } from "@dfinity/agent";
 import { GetPoolInput, icswap, IDex, IPool, ListPoolInput } from "../../types";
 import { CanisterWrapper } from "../../types/CanisterWrapper";
 import { icsIndexNode } from "../../types/actors";
@@ -10,7 +10,7 @@ type IndexNodeActor = icsIndexNode._SERVICE;
 export class ICPSwap extends CanisterWrapper implements IDex {
     private actor: IndexNodeActor;
 
-    constructor({ agent, address }: { agent: HttpAgent; address?: string }) {
+    constructor({ agent, address }: { agent: Agent; address?: string }) {
         const id = address ?? ICPSWAP_NODE_INDEX_CANISTER;
         super({ id, agent });
         this.actor = Actor.createActor(icsIndexNode.idlFactory, {
@@ -39,7 +39,7 @@ export class ICPSwap extends CanisterWrapper implements IDex {
                 new ICPSwapPool({
                     poolInfo: poolData,
                     //TODO: fix later to Agent
-                    agent: this.agent as HttpAgent,
+                    agent: this.agent,
                 }),
         );
         if (token2) {
@@ -55,7 +55,7 @@ export class ICPSwap extends CanisterWrapper implements IDex {
         if (poolData.length === 0) return null;
 
         return new ICPSwapPool({
-            agent: this.agent as HttpAgent,
+            agent: this.agent,
             poolInfo: poolData[0],
         });
     }

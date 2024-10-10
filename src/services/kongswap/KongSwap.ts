@@ -1,5 +1,5 @@
-import { Actor } from "@dfinity/agent";
-import { Agent, IDex, IPool, kongswap, Token } from "../../types";
+import { Actor, Agent } from "@dfinity/agent";
+import { IDex, IPool, kongswap, Token } from "../../types";
 import { kongBackend } from "../../types/actors";
 import { CanisterWrapper } from "../../types/CanisterWrapper";
 import { parseResultResponse } from "../../utils";

@@ -1,4 +1,4 @@
-import { Agent } from ".";
+import { Agent } from "@dfinity/agent";
 
 export type CanisterWrapperInitArgs = { id: string; agent: Agent };
 

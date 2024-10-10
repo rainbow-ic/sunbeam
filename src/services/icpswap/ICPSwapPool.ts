@@ -1,5 +1,4 @@
-import { Actor } from "@dfinity/agent";
-import { HttpAgent } from "@dfinity/agent";
+import { Actor, Agent } from "@dfinity/agent";
 import {
     IPool,
     Token as IToken,
@@ -26,7 +25,7 @@ export class ICPSwapPool extends CanisterWrapper implements IPool {
     private actor: IcpswapPoolActor;
     private poolInfo: PoolInfo;
 
-    constructor({ agent, poolInfo }: { agent: HttpAgent; poolInfo: PoolInfo }) {
+    constructor({ agent, poolInfo }: { agent: Agent; poolInfo: PoolInfo }) {
         super({ id: poolInfo.pool, agent });
         this.actor = Actor.createActor(icsPool.idlFactory, {
             agent,
@@ -139,8 +138,7 @@ export class ICPSwapPool extends CanisterWrapper implements IPool {
             tokenSwapInstance = new Token({
                 canisterId: meta1.address,
                 tokenStandard: meta1.standard as TokenStandard,
-                // TODO: fix later with Agent
-                agent: this.agent as HttpAgent,
+                agent: this.agent,
             });
             fee = await tokenSwapInstance.getFee();
             tokenAddress = meta1.address;
@@ -150,7 +148,7 @@ export class ICPSwapPool extends CanisterWrapper implements IPool {
                 canisterId: meta2.address,
                 tokenStandard: meta2.standard as TokenStandard,
                 // TODO: fix later with Agent
-                agent: this.agent as HttpAgent,
+                agent: this.agent,
             });
             fee = await tokenSwapInstance.getFee();
             tokenAddress = meta2.address;
