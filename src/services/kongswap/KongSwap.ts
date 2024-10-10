@@ -13,6 +13,7 @@ import { CanisterWrapper } from "../../types/CanisterWrapper";
 import { parseResultResponse } from "../../utils";
 import { KongSwapPool } from "./KongSwapPool";
 import { PoolInfo } from "../../types/KongSwap";
+import { PoolsResult } from "../../types/actors/kongswap/kongBackend";
 
 type KongSwapActor = kongBackend._SERVICE;
 
@@ -161,7 +162,7 @@ export class KongSwap extends CanisterWrapper implements IDex {
         return response[0];
     }
     async listPools(token1?: Token, token2?: Token): Promise<IPool[]> {
-        let tokensRes;
+        let tokensRes: PoolsResult = undefined;
 
         // searching for pool of token 1
         if (token1) {
@@ -169,7 +170,6 @@ export class KongSwap extends CanisterWrapper implements IDex {
         } else tokensRes = await this.actor.pools(["all"]);
 
         const result = parseResultResponse(tokensRes);
-        console.log(result);
         let pools = result.pools;
 
         // filter out if token2 is provided
