@@ -10,13 +10,16 @@ if [ -z "$VERSION" ]; then
   exit 1
 fi
 
-echo "Publishing version $VERSION"
+# Run build and proceed only if successful
+npm run build && {
+  echo "Publishing version $VERSION"
 
-npm version $VERSION
+  npm version $VERSION
 
-# publish change 
-git push
-git push origin tag $VERSION
+  # Publish changes
+  git push
+  git push origin tag $VERSION
 
-# publish to npm
-npm publish
+  # Publish to npm
+  npm publish
+}
