@@ -41,7 +41,6 @@ export type SwapTransaction = TransactionInfo & {
     tokenOut: string;
     amountOut: bigint;
     slippage: number;
-    price: number;
 };
 
 export type AddLiquidityTransaction = TransactionInfo & {

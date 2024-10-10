@@ -28,7 +28,7 @@ export class KongSwap extends CanisterWrapper implements IDex {
         });
     }
     async getTransactions(): Promise<Transaction[]> {
-        const txsResult = await this.actor.get_txs([]);
+        const txsResult = await this.actor.txs([]);
         const txs = parseResultResponse(txsResult);
 
         const transactions = txs
@@ -84,7 +84,6 @@ export class KongSwap extends CanisterWrapper implements IDex {
                         amountIn: tx.Swap.pay_amount,
                         amountOut: tx.Swap.receive_amount,
                         slippage: tx.Swap.slippage,
-                        price: tx.Swap.price,
                         source: TransactionSource.KONGSWAP,
                         type: TransactionType.SWAP,
                     };
@@ -170,6 +169,7 @@ export class KongSwap extends CanisterWrapper implements IDex {
         } else tokensRes = await this.actor.pools(["all"]);
 
         const result = parseResultResponse(tokensRes);
+        console.log(result);
         let pools = result.pools;
 
         // filter out if token2 is provided
