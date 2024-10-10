@@ -175,7 +175,7 @@ export class KongSwap extends CanisterWrapper implements IDex {
         // filter out if token2 is provided
         // Kong swap is not support for pair searching
         if (token1 && token2) {
-            pools = result.pools.filter((pool) => {
+            pools = pools.filter((pool) => {
                 if (
                     (pool.address_0 === token1.address && pool.address_1 === token2.address) ||
                     (pool.address_0 === token2.address && pool.address_1 === token1.address)

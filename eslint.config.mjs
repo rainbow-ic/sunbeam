@@ -10,6 +10,6 @@ export default [
     ...tseslint.configs.recommended,
     eslintConfigPrettier,
     {
-        ignores: ["coverage/*"],
+        ignores: ["coverage/*", "dist/*", "node_modules/*"],
     },
 ];
