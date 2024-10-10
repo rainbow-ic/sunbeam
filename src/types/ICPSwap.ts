@@ -1,6 +1,6 @@
 import { PublicPoolOverView } from "./actors/icswap/icpswapNodeIndex";
 import { PoolMetadata as ActorPoolMetadata, SwapArgs } from "./actors/icswap/icpswapPool";
-import { Token as GeneralToken } from "./ISwap";
+import { Token as GeneralToken } from "./shared";
 
 export type Token = GeneralToken & {
     standard: string;
