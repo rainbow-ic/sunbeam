@@ -1,5 +1,13 @@
 import { Actor, Agent } from "@dfinity/agent";
-import { IDex, IPool, kongswap, Token } from "../../types";
+import {
+    IDex,
+    IPool,
+    kongswap,
+    Token,
+    Transaction,
+    TransactionSource,
+    TransactionType,
+} from "../../types";
 import { kongBackend } from "../../types/actors";
 import { CanisterWrapper } from "../../types/CanisterWrapper";
 import { parseResultResponse } from "../../utils";
@@ -18,6 +26,79 @@ export class KongSwap extends CanisterWrapper implements IDex {
             agent,
             canisterId: id,
         });
+    }
+    async getTransactions(): Promise<Transaction[]> {
+        const txsResult = await this.actor.get_txs([]);
+        const txs = parseResultResponse(txsResult);
+
+        const transactions = txs
+            .map((tx): Transaction | null => {
+                let parsedTx: Transaction | undefined = undefined;
+
+                if ("AddLiquidity" in tx) {
+                    parsedTx = {
+                        ts: tx.AddLiquidity.ts,
+                        id: tx.AddLiquidity.tx_id.toString(),
+                        raw: tx.AddLiquidity,
+                        token1: tx.AddLiquidity.symbol_0,
+                        token2: tx.AddLiquidity.symbol_1,
+                        amount1: tx.AddLiquidity.amount_0,
+                        amount2: tx.AddLiquidity.amount_1,
+                        source: TransactionSource.KONGSWAP,
+                        type: TransactionType.ADD_LIQUIDITY,
+                    };
+                }
+                if ("AddPool" in tx) {
+                    parsedTx = {
+                        ts: tx.AddPool.ts,
+                        id: tx.AddPool.tx_id.toString(),
+                        raw: tx.AddPool,
+                        token1: tx.AddPool.symbol_0,
+                        token2: tx.AddPool.symbol_1,
+                        amount1: tx.AddPool.amount_0,
+                        amount2: tx.AddPool.amount_1,
+                        source: TransactionSource.KONGSWAP,
+                        type: TransactionType.CREATE_POOL,
+                    };
+                }
+                if ("RemoveLiquidity" in tx) {
+                    parsedTx = {
+                        ts: tx.RemoveLiquidity.ts,
+                        id: tx.RemoveLiquidity.tx_id.toString(),
+                        raw: tx.RemoveLiquidity,
+                        token1: tx.RemoveLiquidity.symbol_0,
+                        token2: tx.RemoveLiquidity.symbol_1,
+                        amount1: tx.RemoveLiquidity.amount_0,
+                        amount2: tx.RemoveLiquidity.amount_1,
+                        source: TransactionSource.KONGSWAP,
+                        type: TransactionType.REMOVE_LIQUIDITY,
+                    };
+                }
+                if ("Swap" in tx) {
+                    parsedTx = {
+                        ts: tx.Swap.ts,
+                        id: tx.Swap.tx_id.toString(),
+                        raw: tx.Swap,
+                        tokenIn: tx.Swap.pay_symbol,
+                        tokenOut: tx.Swap.receive_symbol,
+                        amountIn: tx.Swap.pay_amount,
+                        amountOut: tx.Swap.receive_amount,
+                        slippage: tx.Swap.slippage,
+                        price: tx.Swap.price,
+                        source: TransactionSource.KONGSWAP,
+                        type: TransactionType.SWAP,
+                    };
+                }
+
+                if (parsedTx == undefined) {
+                    return null;
+                }
+
+                return parsedTx;
+            })
+            .filter((tx) => tx !== null) as Transaction[];
+
+        return transactions;
     }
 
     async listTokens(): Promise<kongswap.Token[]> {
