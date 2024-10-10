@@ -1,5 +1,5 @@
-import { Actor, HttpAgent } from "@dfinity/agent";
-import { IDex, IPool, Token } from "../../types/ISwap";
+import { Actor, Agent } from "@dfinity/agent";
+import { GetPoolInput, icswap, IDex, IPool, ListPoolInput } from "../../types";
 import { CanisterWrapper } from "../../types/CanisterWrapper";
 import { icsIndexNode } from "../../types/actors";
 import { PublicTokenOverview } from "../../types/actors/icswap/icpswapNodeIndex";
@@ -10,7 +10,7 @@ type IndexNodeActor = icsIndexNode._SERVICE;
 export class ICPSwap extends CanisterWrapper implements IDex {
     private actor: IndexNodeActor;
 
-    constructor({ agent, address }: { agent: HttpAgent; address?: string }) {
+    constructor({ agent, address }: { agent: Agent; address?: string }) {
         const id = address ?? ICPSWAP_NODE_INDEX_CANISTER;
         super({ id, agent });
         this.actor = Actor.createActor(icsIndexNode.idlFactory, {
@@ -19,13 +19,13 @@ export class ICPSwap extends CanisterWrapper implements IDex {
         });
     }
 
-    async listTokens(): Promise<Token[]> {
+    async listTokens(): Promise<icswap.Token[]> {
         const tokenData: PublicTokenOverview[] = await this.actor.getAllTokens();
-        const tokens: Token[] = tokenData.map((data) => data);
+        const tokens: icswap.Token[] = tokenData.map((data) => data);
         return tokens;
     }
 
-    async listPools(token1?: Token, token2?: Token): Promise<IPool[]> {
+    async listPools(token1?: ListPoolInput, token2?: ListPoolInput): Promise<ICPSwapPool[]> {
         let poolData = [];
         if (token2 && !token1) return await this.listPools(token2);
         if (token1) {
@@ -37,7 +37,8 @@ export class ICPSwap extends CanisterWrapper implements IDex {
         const pools = poolData.map(
             (poolData) =>
                 new ICPSwapPool({
-                    poolData: poolData,
+                    poolInfo: poolData,
+                    //TODO: fix later to Agent
                     agent: this.agent,
                 }),
         );
@@ -48,10 +49,21 @@ export class ICPSwap extends CanisterWrapper implements IDex {
         }
     }
 
-    async getPool(token1: Token, token2: Token): Promise<IPool> {
+    async getPoolByAddress(address: string): Promise<IPool | null> {
+        const poolData = (await this.actor.getAllPools()).filter((pool) => pool.pool === address);
+
+        if (poolData.length === 0) return null;
+
+        return new ICPSwapPool({
+            agent: this.agent,
+            poolInfo: poolData[0],
+        });
+    }
+
+    async getPool(token1: GetPoolInput, token2: GetPoolInput): Promise<ICPSwapPool | null> {
         // TODO: move imnplementation to shared code
-        const pools: IPool[] = await this.listPools(token1, token2);
-        if (pools.length === 0) throw new Error("no matching pool found");
+        const pools = await this.listPools(token1, token2);
+        if (pools.length === 0) return null;
 
         // TODO?: add option to pick a pool if multiple exist for the selected tokens
         if (pools.length > 1) throw new Error("multiple pools found for this pair");

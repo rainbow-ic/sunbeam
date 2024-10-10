@@ -184,7 +184,7 @@ export type Result_8 = { ok: CycleInfo } | { err: Error };
 export type Result_9 = { ok: bigint } | { err: Error };
 export interface SwapArgs {
     amountIn: string;
-    zeroForOne: boolean;
+    zeroForOne: boolean; // this is confusing, why not just pass in fromToken?
     amountOutMinimum: string;
 }
 export interface SwapRecordInfo {

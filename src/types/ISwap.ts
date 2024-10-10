@@ -1,29 +1,48 @@
-import { PoolMetadata as ICSPoolMetadata } from "./actors/icswap/icpswapPool";
-import { ICSLPInfo } from "./ICPSwap";
-export type Quote = {
-    amountIn: bigint;
-    amoutnOut: bigint;
-    tokenIn: Token;
-    tokenOut: Token;
-};
+import * as icpswap from "./ICPSwap";
+import * as kongswap from "./KongSwap";
 
+/**
+ * Represents a token with properties from multiple sources.
+ *
+ * @typedef {Object} Token
+ * @property {string} address - The address of the token.
+ * @property {string} [name] - The name of the token (icpswap).
+ * @property {string} [symbol] - The symbol of the token (icpswap).
+ * @property {string} [chain] - The chain of the token (kongswap).
+ */
 export type Token = {
-    symbol: string;
-    name: string;
+    /**
+     * The address of the token.
+     * @type {string}
+     */
     address: string;
-    standard: string;
 
-    // TODO: should this be always included or make it optional
-    // additional info
-    id?: bigint;
-    volumeUSD1d?: number;
-    volumeUSD7d?: number;
-    totalVolumeUSD?: number;
-    volumeUSD?: number;
-    feesUSD?: number;
-    priceUSDChange?: number;
-    txCount?: bigint;
-    priceUSD?: number;
+    /**
+     * The name of the token.
+     *
+     * @type {string}
+     *
+     * @source icpswap - Corresponds to the token's name.
+     */
+    name?: string;
+
+    /**
+     * The symbol of the token.
+     *
+     * @type {string}
+     *
+     * @source icpswap - Corresponds to the token's symbol.
+     */
+    symbol?: string;
+
+    /**
+     * The chain of the token.
+     *
+     * @type {string}
+     *
+     * @source kongswap - Corresponds to the token's chain.
+     */
+    chain?: string;
 };
 
 export type PoolData = {
@@ -32,28 +51,198 @@ export type PoolData = {
     token2: Token;
 };
 
-export type Transaction = {
-    id: string;
-};
-
-export type SwapArgs = {
+export type SwapInput = {
     tokenIn: Token;
     amountIn: bigint;
-    amoundOutMinimum?: bigint;
+    amountOut: bigint;
+    slippage: number;
 };
 
+export type SwapResponse = bigint;
+
+export type QuoteInput = {
+    tokenIn: Token;
+    amountIn: bigint;
+    slippage: number;
+};
+
+export type QuoteResponse = bigint;
+
+export type GetMetadataResponse = icpswap.PoolMetadata | kongswap.PoolMetadata | null;
+
+export type PoolInfoResponse = icpswap.PoolInfo | kongswap.PoolInfo | null;
+
+export type GetLPInfoResponse = LPInfo | null;
+
+/**
+ * Represents the information about a liquidity pool (LP).
+ *
+ * @typedef {Object} LPInfo
+ * @property {string} token1Address - The address of the first token in the liquidity pool.
+ * @property {string} token2Address - The address of the second token in the liquidity pool.
+ * @property {string} token1Symbol - The symbol of the first token in the liquidity pool.
+ * @property {string} token2Symbol - The symbol of the second token in the liquidity pool.
+ * @property {number} token1Balance - The balance of the first token in the liquidity pool.
+ * @property {number} token2Balance - The balance of the second token in the liquidity pool.
+ * @property {number} lpFeeToken1 - The liquidity pool fee for the first token.
+ * @property {number} lpFeeToken2 - The liquidity pool fee for the second token.
+ * @property {number} lpFee - The fee of the liquidity pool.
+ * @property {number} price - The price of the liquidity pool.
+ */
+export type LPInfo = {
+    /**
+     * The address of the first token in the liquidity pool.
+     *
+     * @type {string}
+     *
+     * @source icpswap - Corresponds to PublicPoolOverView `token0Id`
+     * @source kongswap - Corresponds to PoolReply `address_0`
+     */
+    token1Address: string;
+
+    /**
+     * The address of the second token in the liquidity pool.
+     *
+     * @type {string}
+     *
+     * @source icpswap - Corresponds to PublicPoolOverView `token1Id`
+     * @source kongswap - Corresponds to PoolReply `address_1`
+     */
+    token2Address: string;
+
+    /**
+     * The chain of the first token in the liquidity pool.
+     *
+     * @type {string}
+     *
+     * @source kongswap - Corresponds to PoolReply `chain_0`
+     */
+    token1Chain?: string;
+
+    /**
+     * The chain of the second token in the liquidity pool.
+     *
+     * @type {string}
+     *
+     * @source kongswap - Corresponds to PoolReply `chain_1`
+     */
+    token2Chain?: string;
+    /**
+     * The symbol of the first token in the liquidity pool.
+     *
+     * @type {string}
+     *
+     * @source icpswap - Corresponds to PublicPoolOverView `token0Symbol`
+     * @source kongswap - Corresponds to PoolReply `symbol_0`
+     */
+    token1Symbol: string;
+
+    /**
+     * The symbol of the second token in the liquidity pool.
+     *
+     * @type {string}
+     *
+     * @source icpswap - Corresponds to PublicPoolOverView `token1Symbol`
+     * @source kongswap - Corresponds to PoolReply `symbol_1`
+     */
+    token2Symbol: string;
+
+    /**
+     * The balance of the first token in the liquidity pool.
+     *
+     * @type {bigint}
+     *
+     * @source icpswap - Corresponds to `token0Amount`
+     * @source kongswap - Corresponds to `balance_0`
+     */
+    token1Balance: bigint;
+
+    /**
+     * The balance of the second token in the liquidity pool.
+     *
+     * @type {bigint}
+     *
+     * @source icpswap - Corresponds to `token1Amount`
+     * @source kongswap - Corresponds to `balance_1`
+     */
+    token2Balance: bigint;
+
+    /**
+     * The liquidity pool fee for the first token.
+     *
+     * @type {bigint}
+     *
+     * @source icpswap - Corresponds to `swapFee0Repurchase`
+     * @source kongswap - Corresponds to `lp_fee_0`
+     */
+    lpFeeToken1: bigint;
+
+    /**
+     * The liquidity pool fee for the second token.
+     *
+     * @type {bigint}
+     *
+     * @source icpswap - Corresponds to `swapFee1Repurchase`
+     * @source kongswap - Corresponds to `lp_fee_1`
+     */
+    lpFeeToken2: bigint;
+
+    /**
+     * The fee of the liquidity pool.
+     *
+     * @type {number}
+     *
+     * @source icpswap - Corresponds to PublicPoolOverView `feeTier` (e.g., 300 is 0.3%)
+     * @source kongswap - Corresponds to PoolReply `lp_fee_bps` (e.g., 30 is 0.3%)
+     */
+    lpFee: number;
+
+    /**
+     * The price of the liquidity pool.
+     * @type {number}
+     *
+     * @source icpswap - Corresponds to PublicPoolOverView `sqrtPrice`
+     * @source kongswap - Corresponds to PoolReply `price`
+     */
+    price: number;
+};
+export type ListPoolInput = Token;
+
+export type GetPoolInput = Token;
+
 export interface IPool {
-    swap(args: SwapArgs): Promise<bigint>;
-    quote(args: SwapArgs): Promise<bigint>;
-    getMetadata(): Promise<ICSPoolMetadata>;
-    getPoolData(): PoolData;
+    swap(args: SwapInput): Promise<SwapResponse>;
+    quote(args: QuoteInput): Promise<QuoteResponse>;
+    getMetadata(): Promise<GetMetadataResponse>;
     isForToken(token: Token): boolean;
     getTokens(): [Token, Token];
-    getLPInfo(): Promise<ICSLPInfo>;
+    /**
+     * This method return the pool info from the private props, the type is based on the dex
+     */
+    getPoolInfo(): PoolInfoResponse;
+    /**
+     * This method return the general LP info
+     */
+    getLPInfo(): Promise<GetLPInfoResponse>;
 }
 
 export interface IDex {
     listTokens(): Promise<Token[]>;
-    listPools(token1?: Token, token2?: Token): Promise<IPool[]>;
-    getPool(token1: Token, token2: Token): Promise<IPool>;
+    listPools(token1?: ListPoolInput, token2?: ListPoolInput): Promise<IPool[]>;
+    getPool(token1: GetPoolInput, token2: GetPoolInput): Promise<IPool | null>;
+    /**
+     * Gets the pool by its address.
+     *
+     * @param {string} address - The address of the pool.
+     *
+     * @example kongswap
+     * const pool = await dex.getPoolByAddress('IC.miasr-qaaaa-aaaam-admma-cai_IC.zdzgz-siaaa-aaaar-qaiba-cai');
+     *
+     * @example icpswap
+     * const pool = await dex.getPoolByAddress('icpswap-xyz123');
+     *
+     * @returns {Promise<IPool | null>} A promise that resolves to the pool if found, or null if not found.
+     *
+     */
+    getPoolByAddress(address: string): Promise<IPool | null>;
 }

@@ -1,6 +1,6 @@
 {
     "name": "@rainbow-ic/sunbeam",
-    "version": "0.0.7-patch-2",
+    "version": "0.0.8-alpha-24",
     "main": "src/index.ts",
     "type": "module",
     "scripts": {
@@ -9,10 +9,10 @@
         "test": "jest",
         "test:cov": "jest --coverage",
         "lint": "eslint .",
-        "dev": "npx tsx src/index.ts"
+        "dev": "npx tsx src/index.ts",
+        "build": "tsc -b"
     },
     "lint-staged": {
-        "*.{js,ts}": "eslint .",
         "**/*": "prettier --write --ignore-unknown"
     },
     "keywords": [],
@@ -36,11 +36,14 @@
         "typescript-eslint": "^8.4.0"
     },
     "dependencies": {
-        "@alpaca-icp/token-adapter": "^1.0.10",
-        "@dfinity/agent": "^2.0.0",
-        "@dfinity/candid": "^2.0.0",
-        "@dfinity/principal": "^2.0.0",
-        "@ic-reactor/core": "^1.8.0"
+        "@alpaca-icp/token-adapter": "^1.0.14",
+        "@dfinity/agent": "^2.1.2",
+        "@dfinity/candid": "^2.1.2",
+        "@dfinity/ledger-icrc": "^2.6.0",
+        "@dfinity/principal": "^2.1.2",
+        "@ic-reactor/core": "^1.8.0",
+        "@slide-computer/signer": "^3.6.4",
+        "@slide-computer/signer-agent": "^3.6.4"
     },
     "directories": {
         "test": "tests"
