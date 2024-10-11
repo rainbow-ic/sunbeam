@@ -4,14 +4,14 @@ import typescript from "@rollup/plugin-typescript";
 import terser from "@rollup/plugin-terser";
 
 export default {
-    input: "src/index.ts", // Entry point of your library
+    input: "index.ts", // Entry point of your library
     output: [
         {
             dir: "dist", // Output directory
             format: "cjs", // CommonJS format
             sourcemap: true, // Generate source maps
-            entryFileNames: "[name].cjs.js", // Output file name pattern
-            chunkFileNames: "[name]-[hash].cjs.js", // Chunk file name pattern
+            entryFileNames: "[name].cjs", // Output file name pattern
+            chunkFileNames: "[name]-[hash].cjs", // Chunk file name pattern
         },
         {
             dir: "dist", // Output directory
