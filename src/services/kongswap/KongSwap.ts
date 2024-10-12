@@ -52,8 +52,7 @@ export class KongSwap extends CanisterWrapper implements IDex {
                         source: TransactionSource.KONGSWAP,
                         type: TransactionType.ADD_LIQUIDITY,
                     } as AddLiquidityTransaction;
-                }
-                if ("AddPool" in tx) {
+                } else if ("AddPool" in tx) {
                     parsedTx = {
                         ts: tx.AddPool.ts,
                         id: tx.AddPool.tx_id.toString(),
@@ -65,8 +64,7 @@ export class KongSwap extends CanisterWrapper implements IDex {
                         source: TransactionSource.KONGSWAP,
                         type: TransactionType.CREATE_POOL,
                     } as CreatePoolTransaction;
-                }
-                if ("RemoveLiquidity" in tx) {
+                } else if ("RemoveLiquidity" in tx) {
                     parsedTx = {
                         ts: tx.RemoveLiquidity.ts,
                         id: tx.RemoveLiquidity.tx_id.toString(),
@@ -78,8 +76,7 @@ export class KongSwap extends CanisterWrapper implements IDex {
                         source: TransactionSource.KONGSWAP,
                         type: TransactionType.REMOVE_LIQUIDITY,
                     } as RemoveLiquidityTransaction;
-                }
-                if ("Swap" in tx) {
+                } else if ("Swap" in tx) {
                     parsedTx = {
                         ts: tx.Swap.ts,
                         id: tx.Swap.tx_id.toString(),
