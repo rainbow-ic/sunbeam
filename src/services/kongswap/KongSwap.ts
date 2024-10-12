@@ -1,8 +1,12 @@
 import { Actor, Agent } from "@dfinity/agent";
 import {
+    AddLiquidityTransaction,
+    CreatePoolTransaction,
     IDex,
     IPool,
     kongswap,
+    RemoveLiquidityTransaction,
+    SwapTransaction,
     Token,
     Transaction,
     TransactionSource,
@@ -47,7 +51,7 @@ export class KongSwap extends CanisterWrapper implements IDex {
                         amount2: tx.AddLiquidity.amount_1,
                         source: TransactionSource.KONGSWAP,
                         type: TransactionType.ADD_LIQUIDITY,
-                    };
+                    } as AddLiquidityTransaction;
                 }
                 if ("AddPool" in tx) {
                     parsedTx = {
@@ -60,7 +64,7 @@ export class KongSwap extends CanisterWrapper implements IDex {
                         amount2: tx.AddPool.amount_1,
                         source: TransactionSource.KONGSWAP,
                         type: TransactionType.CREATE_POOL,
-                    };
+                    } as CreatePoolTransaction;
                 }
                 if ("RemoveLiquidity" in tx) {
                     parsedTx = {
@@ -73,7 +77,7 @@ export class KongSwap extends CanisterWrapper implements IDex {
                         amount2: tx.RemoveLiquidity.amount_1,
                         source: TransactionSource.KONGSWAP,
                         type: TransactionType.REMOVE_LIQUIDITY,
-                    };
+                    } as RemoveLiquidityTransaction;
                 }
                 if ("Swap" in tx) {
                     parsedTx = {
@@ -87,7 +91,7 @@ export class KongSwap extends CanisterWrapper implements IDex {
                         slippage: tx.Swap.slippage,
                         source: TransactionSource.KONGSWAP,
                         type: TransactionType.SWAP,
-                    };
+                    } as SwapTransaction;
                 }
 
                 if (parsedTx == undefined) {
@@ -96,7 +100,7 @@ export class KongSwap extends CanisterWrapper implements IDex {
 
                 return parsedTx;
             })
-            .filter((tx) => tx !== null) as Transaction[];
+            .filter((tx) => tx !== null);
 
         return transactions;
     }
