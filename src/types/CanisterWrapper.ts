@@ -1,4 +1,4 @@
-import { Agent } from "@dfinity/agent";
+import { Agent, Identity } from "@dfinity/agent";
 
 export type CanisterWrapperInitArgs = { id: string; agent: Agent };
 
@@ -9,5 +9,21 @@ export class CanisterWrapper {
     constructor({ id, agent }: CanisterWrapperInitArgs) {
         this.id = id;
         this.agent = agent;
+    }
+
+    public setIdentity(identity: Identity) {
+        this.agent.replaceIdentity(identity);
+    }
+
+    public invalidateIdentity() {
+        this.agent.invalidateIdentity();
+    }
+
+    public getCanisterId(): string {
+        return this.id;
+    }
+
+    public getAgent(): Agent {
+        return this.agent;
     }
 }
