@@ -32,8 +32,14 @@ export type SwapInput = {
 export type PoolMetadata = PoolReply;
 
 /**
- * KongSwap support pair swap and non-pair swap
- *  */
-export type PoolInfo = (PoolReply & PoolData) | PoolData;
+ * Pool that can be swapped and have a pool
+ */
+export type LPPool = PoolReply & PoolData;
+/**
+ * Pair that can be swapped but don't have a pool
+ */
+export type NonLPPool = PoolData;
+
+export type PoolInfo = LPPool;
 
 export type Transaction = AddLiquidityReply | SwapReply | AddPoolReply | RemoveLiquidityReply;
