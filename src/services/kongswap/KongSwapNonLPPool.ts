@@ -13,7 +13,6 @@ import {
 import { kongBackend } from "../../types/actors";
 import { CanisterWrapper } from "../../types/CanisterWrapper";
 import { parseResultResponse } from "../../utils";
-import { PoolInfo } from "../../types/KongSwap";
 
 type KongSwapActor = kongBackend._SERVICE;
 
@@ -39,7 +38,7 @@ export class KongSwapNonLPPool extends CanisterWrapper implements IPool {
     }: {
         agent: Agent;
         address: string;
-        poolInfo: PoolInfo;
+        poolInfo: kongswap.NonLPPool;
     }) {
         const id = address;
         super({ id, agent });
