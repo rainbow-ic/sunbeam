@@ -56,7 +56,7 @@ export class KongSwapNonLPPool extends CanisterWrapper implements IPool {
     private toSwapArgs(args: SwapInput): kongswap.SwapInput {
         const [token1, token2] = this.getTokens();
 
-        if (args.tokenIn.address !== token1.address || args.tokenIn.address !== token2.address) {
+        if (this.isForToken(args.tokenIn)) {
             throw new Error("Invalid token");
         }
 
@@ -100,7 +100,7 @@ export class KongSwapNonLPPool extends CanisterWrapper implements IPool {
     async getMaxSlippage(args: QuoteInput): Promise<number> {
         const [token1, token2] = this.getTokens();
 
-        if (args.tokenIn.address !== token1.address || args.tokenIn.address !== token2.address) {
+        if (this.isForToken(args.tokenIn)) {
             throw new Error("Invalid token");
         }
 
@@ -123,7 +123,7 @@ export class KongSwapNonLPPool extends CanisterWrapper implements IPool {
     async quote(args: QuoteInput): Promise<QuoteResponse> {
         const [token1, token2] = this.getTokens();
 
-        if (args.tokenIn.address !== token1.address || args.tokenIn.address !== token2.address) {
+        if (this.isForToken(args.tokenIn)) {
             throw new Error("Invalid token");
         }
 
