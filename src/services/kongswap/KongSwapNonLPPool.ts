@@ -13,6 +13,7 @@ import {
 import { kongBackend } from "../../types/actors";
 import { CanisterWrapper } from "../../types/CanisterWrapper";
 import { parseResultResponse } from "../../utils";
+import { SwapAmountsReply } from "../../types/actors/kongswap/kongBackend";
 
 type KongSwapActor = kongBackend._SERVICE;
 
@@ -142,6 +143,30 @@ export class KongSwapNonLPPool extends CanisterWrapper implements IPool {
 
         return res.receive_amount;
     }
+
+    async fullQuote(args: QuoteInput): Promise<SwapAmountsReply> {
+        const [token1, token2] = this.getTokens();
+
+        if (!this.isForToken(args.tokenIn)) {
+            throw new Error("Invalid token");
+        }
+
+        const tokenIn = args.tokenIn.address === token1.address ? token1 : token2;
+        const tokenOut = args.tokenIn.address === token1.address ? token2 : token1;
+
+        const tokenInWithChain = `${tokenIn.chain}.${tokenIn.address}`;
+        const tokenOutWithChain = `${tokenOut.chain}.${tokenOut.address}`;
+
+        const swapAmountResult = await this.actor.swap_amounts(
+            tokenInWithChain,
+            args.amountIn,
+            tokenOutWithChain,
+        );
+        const res = parseResultResponse(swapAmountResult);
+
+        return res;
+    }
+
     async getMetadata(): Promise<kongswap.PoolMetadata> {
         const poolsResponse = await this.actor.pools([this.poolInfo.address]);
         const poolMetadata = parseResultResponse(poolsResponse);
