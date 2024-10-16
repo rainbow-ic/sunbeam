@@ -6,7 +6,7 @@ import {
     SwapInput,
     SwapResponse,
     GetLPInfoResponse,
-} from "../../types/ISwap";
+} from "../../types";
 import {
     DepositArgs,
     PoolMetadata as ICSPoolMetadata,

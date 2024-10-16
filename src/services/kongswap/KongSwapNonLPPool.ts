@@ -13,7 +13,6 @@ import {
 import { kongBackend } from "../../types/actors";
 import { CanisterWrapper } from "../../types/CanisterWrapper";
 import { parseResultResponse } from "../../utils";
-import { PoolInfo } from "../../types/KongSwap";
 import { SwapAmountsReply } from "../../types/actors/kongswap/kongBackend";
 
 type KongSwapActor = kongBackend._SERVICE;
@@ -30,9 +29,9 @@ type KongSwapActor = kongBackend._SERVICE;
  * @returns An instance of KongSwap.
  *
  */
-export class KongSwapPool extends CanisterWrapper implements IPool {
+export class KongSwapNonLPPool extends CanisterWrapper implements IPool {
     private actor: KongSwapActor;
-    private poolInfo: PoolInfo;
+    private poolInfo: kongswap.NonLPPool;
     constructor({
         agent,
         address,
@@ -40,7 +39,7 @@ export class KongSwapPool extends CanisterWrapper implements IPool {
     }: {
         agent: Agent;
         address: string;
-        poolInfo: PoolInfo;
+        poolInfo: kongswap.NonLPPool;
     }) {
         const id = address;
         super({ id, agent });
@@ -51,7 +50,7 @@ export class KongSwapPool extends CanisterWrapper implements IPool {
         });
         this.poolInfo = poolInfo;
     }
-    getPoolInfo(): kongswap.PoolInfo {
+    getPoolInfo(): kongswap.NonLPPool {
         return this.poolInfo;
     }
 
@@ -190,19 +189,6 @@ export class KongSwapPool extends CanisterWrapper implements IPool {
         return [this.poolInfo.token1, this.poolInfo.token2];
     }
     async getLPInfo(): Promise<GetLPInfoResponse> {
-        return {
-            token1Address: this.poolInfo.address_0,
-            token2Address: this.poolInfo.address_1,
-            token1Chain: this.poolInfo.chain_0,
-            token2Chain: this.poolInfo.chain_1,
-            token1Symbol: this.poolInfo.symbol_0,
-            token2Symbol: this.poolInfo.symbol_1,
-            token1Balance: this.poolInfo.balance_0,
-            token2Balance: this.poolInfo.balance_1,
-            lpFeeToken1: this.poolInfo.lp_fee_0,
-            lpFeeToken2: this.poolInfo.lp_fee_1,
-            lpFee: this.poolInfo.lp_fee_bps,
-            price: this.poolInfo.price,
-        };
+        throw new Error("This pair is not a LP pair");
     }
 }
