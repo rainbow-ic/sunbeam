@@ -1,4 +1,4 @@
-// export * as actors from "./actors";
+export * as actors from "./actors";
 export * as kongswap from "./KongSwap";
 export * as icswap from "./ICPSwap";
 export * from "./dex";
