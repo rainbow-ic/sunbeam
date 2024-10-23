@@ -17,9 +17,9 @@ jest.mock("../../src/utils", () => ({
 }));
 
 import { describe } from "@jest/globals";
-import { KongSwap, KONGSWAP_BACKEND_CANISTER } from "../../src";
+import { KongSwap, KONGSWAP_BACKEND_CANISTER } from "../../../src";
 import { Agent } from "@dfinity/agent";
-import { TxsResult } from "../../src/types/actors/kongswap/kongBackend";
+import { TxsResult } from "../../../src/types/actors/kongswap/kongBackend";
 
 const address = KONGSWAP_BACKEND_CANISTER;
 const agent = {} as unknown as Agent;
