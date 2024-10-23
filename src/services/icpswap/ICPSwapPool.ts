@@ -19,6 +19,7 @@ import { CanisterWrapper } from "../../types/CanisterWrapper";
 import { icsPool } from "../../types/actors";
 import { Token } from "@alpaca-icp/token-adapter";
 import { PoolInfo, UserUnusedBalance } from "../../types/ICPSwap";
+import { principalToSubaccount } from "../../utils/principalToSubaccount";
 
 type IcpswapPoolActor = icsPool._SERVICE;
 
@@ -185,7 +186,7 @@ export class ICPSwapPool extends CanisterWrapper implements IPool {
                 memo: [],
                 from_subaccount: [],
                 created_at_time: [],
-                amount: BigInt(Math.floor(Number(swapArgs.amountIn) + Number(fee))),
+                amount: BigInt(swapArgs.amountIn + fee),
                 expected_allowance: [],
                 expires_at: [],
                 spender: {
@@ -200,15 +201,17 @@ export class ICPSwapPool extends CanisterWrapper implements IPool {
                 token: tokenAddress,
             });
         } else {
+            const operator = await this.agent.getPrincipal();
+            const poolSubaccount = principalToSubaccount(operator);
             await tokenSwapInstance.transfer({
                 fee: [],
                 memo: [],
                 from_subaccount: [],
                 created_at_time: [],
-                amount: BigInt(Math.floor(Number(swapArgs.amountIn) + Number(fee))),
+                amount: BigInt(swapArgs.amountIn + fee),
                 to: {
                     owner: Principal.fromText(this.id),
-                    subaccount: [],
+                    subaccount: [poolSubaccount],
                 },
             });
 
