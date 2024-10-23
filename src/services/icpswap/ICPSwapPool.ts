@@ -10,6 +10,7 @@ import {
 import {
     DepositArgs,
     PoolMetadata as ICSPoolMetadata,
+    WithdrawArgs,
 } from "../../types/actors/icswap/icpswapPool";
 import { parseResultResponse, validateCaller } from "../../utils";
 import { TokenStandard, icswap } from "../../types";
@@ -112,6 +113,12 @@ export class ICPSwapPool extends CanisterWrapper implements IPool {
         const res = await this.actor.depositFrom(args);
         const depositResult = parseResultResponse(res);
         return depositResult;
+    }
+
+    async withdraw(args: WithdrawArgs): Promise<bigint> {
+        const res = await this.actor.withdraw(args);
+        const withdrawResult = parseResultResponse(res);
+        return withdrawResult;
     }
 
     async getMetadata(): Promise<ICSPoolMetadata> {
