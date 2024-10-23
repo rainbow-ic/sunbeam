@@ -121,6 +121,12 @@ export class ICPSwapPool extends CanisterWrapper implements IPool {
         return withdrawResult;
     }
 
+    async getUnusedBalance(pricipal: Principal): Promise<bigint> {
+        const res = await this.actor.getUserUnusedBalance(pricipal);
+        const unusedBalance = parseResultResponse(res);
+        return unusedBalance;
+    }
+
     async getMetadata(): Promise<ICSPoolMetadata> {
         const res = await this.actor.metadata();
         const metadata = parseResultResponse(res);
