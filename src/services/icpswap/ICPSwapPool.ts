@@ -201,6 +201,7 @@ export class ICPSwapPool extends CanisterWrapper implements IPool {
                 token: tokenAddress,
             });
         } else {
+            // https://github.com/ICPSwap-Labs/docs/blob/main/02.SwapPool/Swap/02.Executing_a_Trade.md#step-2
             const operator = await this.agent.getPrincipal();
             const poolSubaccount = principalToSubaccount(operator);
             await tokenSwapInstance.transfer({
