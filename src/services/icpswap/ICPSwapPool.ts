@@ -171,7 +171,6 @@ export class ICPSwapPool extends CanisterWrapper implements IPool {
             tokenSwapInstance = new Token({
                 canisterId: meta2.address,
                 tokenStandard: meta2.standard as TokenStandard,
-                // TODO: fix later with Agent
                 agent: this.agent,
             });
             fee = await tokenSwapInstance.getFee();
@@ -186,7 +185,7 @@ export class ICPSwapPool extends CanisterWrapper implements IPool {
                 memo: [],
                 from_subaccount: [],
                 created_at_time: [],
-                amount: BigInt(swapArgs.amountIn + fee),
+                amount: args.amountIn,
                 expected_allowance: [],
                 expires_at: [],
                 spender: {
@@ -197,7 +196,7 @@ export class ICPSwapPool extends CanisterWrapper implements IPool {
 
             await this.depositFrom({
                 fee,
-                amount: BigInt(swapArgs.amountIn),
+                amount: args.amountIn,
                 token: tokenAddress,
             });
         } else {
@@ -209,7 +208,7 @@ export class ICPSwapPool extends CanisterWrapper implements IPool {
                 memo: [],
                 from_subaccount: [],
                 created_at_time: [],
-                amount: BigInt(swapArgs.amountIn + fee),
+                amount: args.amountIn,
                 to: {
                     owner: Principal.fromText(this.id),
                     subaccount: [poolSubaccount],
@@ -218,7 +217,7 @@ export class ICPSwapPool extends CanisterWrapper implements IPool {
 
             await this.deposit({
                 fee,
-                amount: BigInt(swapArgs.amountIn),
+                amount: args.amountIn,
                 token: tokenAddress,
             });
         }
