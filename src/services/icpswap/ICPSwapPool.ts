@@ -115,6 +115,12 @@ export class ICPSwapPool extends CanisterWrapper implements IPool {
         return depositResult;
     }
 
+    async deposit(args: DepositArgs): Promise<bigint> {
+        const res = await this.actor.deposit(args);
+        const depositResult = parseResultResponse(res);
+        return depositResult;
+    }
+
     async withdraw(args: WithdrawArgs): Promise<bigint> {
         const res = await this.actor.withdraw(args);
         const withdrawResult = parseResultResponse(res);
@@ -187,12 +193,19 @@ export class ICPSwapPool extends CanisterWrapper implements IPool {
                     subaccount: [],
                 },
             });
+
+            await this.depositFrom({
+                fee,
+                amount: BigInt(swapArgs.amountIn),
+                token: tokenAddress,
+            });
+        } else {
+            await this.deposit({
+                fee,
+                amount: BigInt(swapArgs.amountIn),
+                token: tokenAddress,
+            });
         }
-        await this.depositFrom({
-            fee,
-            amount: BigInt(swapArgs.amountIn),
-            token: tokenAddress,
-        });
 
         // SWAP
         // doc: https://github.com/ICPSwap-Labs/docs/blob/main/02.SwapPool/Swap/01.Getting_a_Quote.md
