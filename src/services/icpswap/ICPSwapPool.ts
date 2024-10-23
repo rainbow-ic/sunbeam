@@ -18,7 +18,7 @@ import { Principal } from "@dfinity/principal";
 import { CanisterWrapper } from "../../types/CanisterWrapper";
 import { icsPool } from "../../types/actors";
 import { Token } from "@alpaca-icp/token-adapter";
-import { PoolInfo } from "../../types/ICPSwap";
+import { PoolInfo, UserUnusedBalance } from "../../types/ICPSwap";
 
 type IcpswapPoolActor = icsPool._SERVICE;
 
@@ -121,10 +121,14 @@ export class ICPSwapPool extends CanisterWrapper implements IPool {
         return withdrawResult;
     }
 
-    async getUnusedBalance(pricipal: Principal): Promise<bigint> {
+    async getUnusedBalance(pricipal: Principal): Promise<UserUnusedBalance> {
         const res = await this.actor.getUserUnusedBalance(pricipal);
         const unusedBalance = parseResultResponse(res);
-        return unusedBalance;
+
+        return {
+            token1: unusedBalance.balance0,
+            token2: unusedBalance.balance1,
+        };
     }
 
     async getMetadata(): Promise<ICSPoolMetadata> {
