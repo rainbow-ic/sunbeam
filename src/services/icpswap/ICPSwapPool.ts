@@ -200,6 +200,18 @@ export class ICPSwapPool extends CanisterWrapper implements IPool {
                 token: tokenAddress,
             });
         } else {
+            await tokenSwapInstance.transfer({
+                fee: [],
+                memo: [],
+                from_subaccount: [],
+                created_at_time: [],
+                amount: BigInt(Math.floor(Number(swapArgs.amountIn) + Number(fee))),
+                to: {
+                    owner: Principal.fromText(this.id),
+                    subaccount: [],
+                },
+            });
+
             await this.deposit({
                 fee,
                 amount: BigInt(swapArgs.amountIn),
