@@ -162,6 +162,9 @@ export class KongSwap extends CanisterWrapper implements IDex {
         }
         return response[0];
     }
+    /**
+     * @description Kongswap can swap any token to any token so token1 and token2 will not
+     */
     async listPools(token1?: Token, token2?: Token): Promise<IPool[]> {
         let tokensRes: PoolsResult = undefined;
 

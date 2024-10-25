@@ -40,6 +40,6 @@ export type LPPool = PoolReply & PoolData;
  */
 export type NonLPPool = PoolData;
 
-export type PoolInfo = LPPool;
+export type PoolInfo = LPPool | NonLPPool;
 
 export type Transaction = AddLiquidityReply | SwapReply | AddPoolReply | RemoveLiquidityReply;

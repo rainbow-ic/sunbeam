@@ -76,6 +76,9 @@ export class KongSwapPool extends CanisterWrapper implements IPool {
         };
     }
 
+    /**
+     * @description this swap method only supportts for icrc2 tokens
+     */
     async swap(args: SwapInput): Promise<SwapResponse> {
         const kongswapArgs = this.toSwapArgs(args);
 
@@ -165,19 +168,21 @@ export class KongSwapPool extends CanisterWrapper implements IPool {
         return [this.poolInfo.token1, this.poolInfo.token2];
     }
     async getLPInfo(): Promise<GetLPInfoResponse> {
-        return {
-            token1Address: this.poolInfo.address_0,
-            token2Address: this.poolInfo.address_1,
-            token1Chain: this.poolInfo.chain_0,
-            token2Chain: this.poolInfo.chain_1,
-            token1Symbol: this.poolInfo.symbol_0,
-            token2Symbol: this.poolInfo.symbol_1,
-            token1Balance: this.poolInfo.balance_0,
-            token2Balance: this.poolInfo.balance_1,
-            lpFeeToken1: this.poolInfo.lp_fee_0,
-            lpFeeToken2: this.poolInfo.lp_fee_1,
-            lpFee: this.poolInfo.lp_fee_bps,
-            price: this.poolInfo.price,
-        };
+        if ("lp_fee_bps" in this.poolInfo) {
+            return {
+                token1Address: this.poolInfo.address_0,
+                token2Address: this.poolInfo.address_1,
+                token1Chain: this.poolInfo.chain_0,
+                token2Chain: this.poolInfo.chain_1,
+                token1Symbol: this.poolInfo.symbol_0,
+                token2Symbol: this.poolInfo.symbol_1,
+                token1Balance: this.poolInfo.balance_0,
+                token2Balance: this.poolInfo.balance_1,
+                lpFeeToken1: this.poolInfo.lp_fee_0,
+                lpFeeToken2: this.poolInfo.lp_fee_1,
+                lpFee: this.poolInfo.lp_fee_bps,
+                price: this.poolInfo.price,
+            };
+        } else throw new Error("This pair is not a LP pair");
     }
 }
