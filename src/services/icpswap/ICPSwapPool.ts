@@ -10,6 +10,7 @@ import {
 import {
     DepositArgs,
     PoolMetadata as ICSPoolMetadata,
+    WithdrawArgs,
 } from "../../types/actors/icswap/icpswapPool";
 import { parseResultResponse, validateCaller } from "../../utils";
 import { TokenStandard, icswap } from "../../types";
@@ -17,7 +18,8 @@ import { Principal } from "@dfinity/principal";
 import { CanisterWrapper } from "../../types/CanisterWrapper";
 import { icsPool } from "../../types/actors";
 import { Token } from "@alpaca-icp/token-adapter";
-import { PoolInfo } from "../../types/ICPSwap";
+import { PoolInfo, UserUnusedBalance } from "../../types/ICPSwap";
+import { principalToSubaccount } from "../../utils/principalToSubaccount";
 
 type IcpswapPoolActor = icsPool._SERVICE;
 
@@ -114,6 +116,28 @@ export class ICPSwapPool extends CanisterWrapper implements IPool {
         return depositResult;
     }
 
+    async deposit(args: DepositArgs): Promise<bigint> {
+        const res = await this.actor.deposit(args);
+        const depositResult = parseResultResponse(res);
+        return depositResult;
+    }
+
+    async withdraw(args: WithdrawArgs): Promise<bigint> {
+        const res = await this.actor.withdraw(args);
+        const withdrawResult = parseResultResponse(res);
+        return withdrawResult;
+    }
+
+    async getUnusedBalance(pricipal: Principal): Promise<UserUnusedBalance> {
+        const res = await this.actor.getUserUnusedBalance(pricipal);
+        const unusedBalance = parseResultResponse(res);
+
+        return {
+            token1: unusedBalance.balance0,
+            token2: unusedBalance.balance1,
+        };
+    }
+
     async getMetadata(): Promise<ICSPoolMetadata> {
         const res = await this.actor.metadata();
         const metadata = parseResultResponse(res);
@@ -147,7 +171,6 @@ export class ICPSwapPool extends CanisterWrapper implements IPool {
             tokenSwapInstance = new Token({
                 canisterId: meta2.address,
                 tokenStandard: meta2.standard as TokenStandard,
-                // TODO: fix later with Agent
                 agent: this.agent,
             });
             fee = await tokenSwapInstance.getFee();
@@ -162,7 +185,7 @@ export class ICPSwapPool extends CanisterWrapper implements IPool {
                 memo: [],
                 from_subaccount: [],
                 created_at_time: [],
-                amount: BigInt(Math.floor(Number(swapArgs.amountIn) + Number(fee))),
+                amount: args.amountIn,
                 expected_allowance: [],
                 expires_at: [],
                 spender: {
@@ -170,12 +193,34 @@ export class ICPSwapPool extends CanisterWrapper implements IPool {
                     subaccount: [],
                 },
             });
+
+            await this.depositFrom({
+                fee,
+                amount: args.amountIn,
+                token: tokenAddress,
+            });
+        } else {
+            // https://github.com/ICPSwap-Labs/docs/blob/main/02.SwapPool/Swap/02.Executing_a_Trade.md#step-2
+            const operator = await this.agent.getPrincipal();
+            const poolSubaccount = principalToSubaccount(operator);
+            await tokenSwapInstance.transfer({
+                fee: [],
+                memo: [],
+                from_subaccount: [],
+                created_at_time: [],
+                amount: args.amountIn,
+                to: {
+                    owner: Principal.fromText(this.id),
+                    subaccount: [poolSubaccount],
+                },
+            });
+
+            await this.deposit({
+                fee,
+                amount: args.amountIn,
+                token: tokenAddress,
+            });
         }
-        await this.depositFrom({
-            fee,
-            amount: BigInt(swapArgs.amountIn),
-            token: tokenAddress,
-        });
 
         // SWAP
         // doc: https://github.com/ICPSwap-Labs/docs/blob/main/02.SwapPool/Swap/01.Getting_a_Quote.md

@@ -1,6 +1,6 @@
 {
     "name": "@rainbow-ic/sunbeam",
-    "version": "0.0.9-alpha-18",
+    "version": "0.0.9-alpha-25",
     "main": "dist/index.cjs",
     "module": "dist/index.esm",
     "scripts": {
@@ -33,12 +33,14 @@
         "globals": "^15.9.0",
         "husky": "^9.1.5",
         "jest": "^29.7.0",
+        "jest-environment-jsdom": "^29.7.0",
         "lint-staged": "^15.2.10",
         "prettier": "3.3.3",
         "prettier-plugin-rust": "^0.1.9",
         "rollup": "^4.24.0",
         "source-map-support": "^0.5.21",
         "ts-jest": "^29.2.5",
+        "ts-node": "^10.9.2",
         "tslib": "^2.7.0",
         "tsx": "^4.19.0",
         "typescript": "^5.6.3",
@@ -46,12 +48,15 @@
     },
     "dependencies": {
         "@alpaca-icp/token-adapter": "^1.0.18",
+        "@babel/core": "^7.25.8",
         "@dfinity/agent": "^2.1.2",
         "@dfinity/candid": "^2.1.2",
         "@dfinity/ledger-icrc": "^2.6.0",
         "@dfinity/principal": "^2.1.2",
         "@slide-computer/signer": "^3.6.4",
-        "@slide-computer/signer-agent": "^3.6.4"
+        "@slide-computer/signer-agent": "^3.6.4",
+        "babel-jest": "^29.7.0",
+        "util": "^0.12.5"
     },
     "directories": {
         "test": "tests"
