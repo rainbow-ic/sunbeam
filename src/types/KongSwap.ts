@@ -1,5 +1,11 @@
-import { PoolReply } from "./actors/kongswap/kongBackend";
-import { Token as GeneralToken, PoolData } from "./ISwap";
+import {
+    AddLiquidityReply,
+    AddPoolReply,
+    PoolReply,
+    RemoveLiquidityReply,
+    SwapReply,
+} from "./actors/kongswap/kongBackend";
+import { Token as GeneralToken, PoolData } from "./shared";
 
 export type Token = GeneralToken & {
     fee: bigint;
@@ -25,4 +31,9 @@ export type SwapInput = {
 
 export type PoolMetadata = PoolReply;
 
-export type PoolInfo = PoolReply & PoolData;
+/**
+ * KongSwap support pair swap and non-pair swap
+ *  */
+export type PoolInfo = (PoolReply & PoolData) | PoolData;
+
+export type Transaction = AddLiquidityReply | SwapReply | AddPoolReply | RemoveLiquidityReply;

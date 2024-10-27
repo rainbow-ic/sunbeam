@@ -1,5 +1,5 @@
 import { Actor, Agent } from "@dfinity/agent";
-import { GetPoolInput, icswap, IDex, IPool, ListPoolInput } from "../../types";
+import { GetPoolInput, icswap, IDex, IPool, ListPoolInput, Transaction } from "../../types";
 import { CanisterWrapper } from "../../types/CanisterWrapper";
 import { icsIndexNode } from "../../types/actors";
 import { PublicTokenOverview } from "../../types/actors/icswap/icpswapNodeIndex";
@@ -17,6 +17,9 @@ export class ICPSwap extends CanisterWrapper implements IDex {
             agent,
             canisterId: id,
         });
+    }
+    getTransactions(): Promise<Transaction[]> {
+        throw new Error("Method not implemented.");
     }
 
     async listTokens(): Promise<icswap.Token[]> {
