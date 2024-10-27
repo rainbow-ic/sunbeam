@@ -7,9 +7,11 @@ import {
     QuoteResponse,
     SwapResponse,
     GetLPInfoResponse,
+    PrepareSwapResponse,
 } from "../shared";
 
 export interface IPool {
+    prepareSwap(args: SwapInput): Promise<PrepareSwapResponse>;
     swap(args: SwapInput): Promise<SwapResponse>;
     quote(args: QuoteInput): Promise<QuoteResponse>;
     getMetadata(): Promise<GetMetadataResponse>;

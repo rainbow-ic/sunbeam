@@ -3,7 +3,10 @@ import {
     GetLPInfoResponse,
     IPool,
     kongswap,
+    LedgerTransactionType,
+    LedgerTx,
     PoolData,
+    PrepareSwapResponse,
     QuoteInput,
     QuoteResponse,
     SwapInput,
@@ -12,9 +15,11 @@ import {
 } from "../../types";
 import { kongBackend } from "../../types/actors";
 import { CanisterWrapper } from "../../types/CanisterWrapper";
-import { parseResultResponse } from "../../utils";
+import { parseResultResponse, validateCaller } from "../../utils";
 import { PoolInfo } from "../../types/KongSwap";
 import { SwapAmountsReply } from "../../types/actors/kongswap/kongBackend";
+import { Token as TokenAdapter, TokenStandard } from "@alpaca-icp/token-adapter";
+import { Principal } from "@dfinity/principal";
 
 type KongSwapActor = kongBackend._SERVICE;
 
@@ -77,10 +82,95 @@ export class KongSwapPool extends CanisterWrapper implements IPool {
         };
     }
 
+    async prepareSwap(args: SwapInput): Promise<PrepareSwapResponse> {
+        const caller = await this.agent.getPrincipal();
+        validateCaller(caller);
+
+        const tokenSwapInstance = new TokenAdapter({
+            canisterId: args.tokenIn.address,
+            tokenStandard: "ICRC1" as TokenStandard,
+            agent: this.agent,
+        });
+
+        // This is hack to know what token standard is supported by the token
+        const tokenStandards = await tokenSwapInstance.supportedStandards();
+
+        const response: Array<LedgerTx> = [];
+
+        if (!tokenStandards.includes("ICRC1") && !tokenStandards.includes("ICRC2")) {
+            throw new Error("Token standard not supported");
+        }
+
+        const isOnlyICRC1 = !tokenStandards.includes("ICRC2") && tokenStandards.includes("ICRC1");
+
+        if (isOnlyICRC1) {
+            const transferBlockId = await tokenSwapInstance.transfer({
+                fee: [],
+                memo: [],
+                from_subaccount: [],
+                created_at_time: [],
+                amount: args.amountIn,
+                to: {
+                    owner: Principal.fromText(this.id),
+                    subaccount: [],
+                },
+            });
+
+            response.push({
+                address: args.tokenIn.address,
+                blockId: transferBlockId,
+                amount: args.amountIn,
+                timestamp: Date.now(),
+                type: LedgerTransactionType.Transfer,
+                from: {
+                    owner: caller,
+                    subaccount: [],
+                },
+                to: {
+                    owner: Principal.fromText(this.id),
+                    subaccount: [],
+                },
+            });
+        } else {
+            const approveBlockId = await tokenSwapInstance.approve({
+                fee: [],
+                memo: [],
+                from_subaccount: [],
+                created_at_time: [],
+                amount: args.amountIn,
+                expected_allowance: [],
+                expires_at: [],
+                spender: {
+                    owner: Principal.fromText(this.id),
+                    subaccount: [],
+                },
+            });
+
+            response.push({
+                address: args.tokenIn.address,
+                blockId: approveBlockId,
+                amount: args.amountIn,
+                timestamp: Date.now(),
+                type: LedgerTransactionType.Approve,
+                from: {
+                    owner: caller,
+                    subaccount: [],
+                },
+                spender: {
+                    owner: Principal.fromText(this.id),
+                    subaccount: [],
+                },
+            });
+        }
+        return response;
+    }
+
     /**
      * @description this swap method only supportts for icrc2 tokens
      */
     async swap(args: SwapInput): Promise<SwapResponse> {
+        const caller = await this.agent.getPrincipal();
+        validateCaller(caller);
         const kongswapArgs = this.toSwapArgs(args);
 
         const swapResult = await this.actor.swap({
