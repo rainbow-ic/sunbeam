@@ -1,3 +1,4 @@
+import { LedgerTx } from "./Response";
 import { Token } from "./Token";
 
 export type SwapInput = {
@@ -5,6 +6,7 @@ export type SwapInput = {
     amountIn: bigint;
     amountOut: bigint;
     slippage: number;
+    ledgerTx?: LedgerTx;
 };
 
 export type QuoteInput = {
