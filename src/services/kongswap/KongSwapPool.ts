@@ -17,7 +17,7 @@ import { kongBackend } from "../../types/actors";
 import { CanisterWrapper } from "../../types/CanisterWrapper";
 import { parseResultResponse, validateCaller } from "../../utils";
 import { PoolInfo } from "../../types/KongSwap";
-import { SwapAmountsReply } from "../../types/actors/kongswap/kongBackend";
+import { SwapAmountsReply, TxId } from "../../types/actors/kongswap/kongBackend";
 import { Token as TokenAdapter, TokenStandard } from "@alpaca-icp/token-adapter";
 import { Principal } from "@dfinity/principal";
 
@@ -173,6 +173,29 @@ export class KongSwapPool extends CanisterWrapper implements IPool {
         validateCaller(caller);
         const kongswapArgs = this.toSwapArgs(args);
 
+        let pay_tx_id: TxId | null = null;
+
+        // checking only one ledger transaction is allowed
+        // checking the ledger transaction type is transfer
+        if (args.ledgerTxs) {
+            if (args.ledgerTxs.length >= 2) {
+                throw new Error(
+                    "Invalid ledger transactions. KongSwap need only one ledger transaction",
+                );
+            }
+
+            const ledgerTx = args.ledgerTxs[0];
+            if (ledgerTx.type !== LedgerTransactionType.Transfer) {
+                throw new Error("Invalid ledger transaction type");
+            }
+
+            if (ledgerTx.type === LedgerTransactionType.Transfer) {
+                pay_tx_id = {
+                    BlockIndex: ledgerTx.blockId,
+                };
+            }
+        }
+
         const swapResult = await this.actor.swap({
             pay_token: kongswapArgs.tokenIn,
             pay_amount: kongswapArgs.amountIn,
@@ -181,7 +204,7 @@ export class KongSwapPool extends CanisterWrapper implements IPool {
             max_slippage: [kongswapArgs.slippage],
             referred_by: [],
             receive_address: [],
-            pay_tx_id: [],
+            pay_tx_id: pay_tx_id ? [pay_tx_id] : [],
         });
         const res = parseResultResponse(swapResult);
 
