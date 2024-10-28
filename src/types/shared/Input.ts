@@ -6,7 +6,7 @@ export type SwapInput = {
     amountIn: bigint;
     amountOut: bigint;
     slippage: number;
-    ledgerTx?: LedgerTx;
+    ledgerTxs?: Array<LedgerTx>;
 };
 
 export type QuoteInput = {
