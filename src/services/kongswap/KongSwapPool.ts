@@ -6,6 +6,7 @@ import {
     LedgerTransactionType,
     LedgerTx,
     PoolData,
+    PrepareSwapInput,
     PrepareSwapResponse,
     QuoteInput,
     QuoteResponse,
@@ -82,7 +83,7 @@ export class KongSwapPool extends CanisterWrapper implements IPool {
         };
     }
 
-    async prepareSwap(args: SwapInput): Promise<PrepareSwapResponse> {
+    async prepareSwap(args: PrepareSwapInput): Promise<PrepareSwapResponse> {
         const caller = await this.agent.getPrincipal();
         validateCaller(caller);
 
@@ -97,11 +98,11 @@ export class KongSwapPool extends CanisterWrapper implements IPool {
 
         const response: Array<LedgerTx> = [];
 
-        if (!tokenStandards.includes("ICRC1") && !tokenStandards.includes("ICRC2")) {
+        if (!tokenStandards.includes("ICRC-1") && !tokenStandards.includes("ICRC-2")) {
             throw new Error("Token standard not supported");
         }
 
-        const isOnlyICRC1 = !tokenStandards.includes("ICRC2") && tokenStandards.includes("ICRC1");
+        const isOnlyICRC1 = !tokenStandards.includes("ICRC-2") && tokenStandards.includes("ICRC-1");
 
         if (isOnlyICRC1) {
             const transferBlockId = await tokenSwapInstance.transfer({
@@ -137,7 +138,7 @@ export class KongSwapPool extends CanisterWrapper implements IPool {
                 memo: [],
                 from_subaccount: [],
                 created_at_time: [],
-                amount: args.amountIn,
+                amount: args.approveAmount,
                 expected_allowance: [],
                 expires_at: [],
                 spender: {
@@ -185,9 +186,6 @@ export class KongSwapPool extends CanisterWrapper implements IPool {
             }
 
             const ledgerTx = args.ledgerTxs[0];
-            if (ledgerTx.type !== LedgerTransactionType.Transfer) {
-                throw new Error("Invalid ledger transaction type");
-            }
 
             if (ledgerTx.type === LedgerTransactionType.Transfer) {
                 pay_tx_id = {
@@ -196,12 +194,15 @@ export class KongSwapPool extends CanisterWrapper implements IPool {
             }
         }
 
+        // quote again to get the latest slippage
+        const maxSlippage = await this.getMaxSlippage(args);
+
         const swapResult = await this.actor.swap({
             pay_token: kongswapArgs.tokenIn,
             pay_amount: kongswapArgs.amountIn,
             receive_token: kongswapArgs.tokenOut,
             receive_amount: [kongswapArgs.amountOut],
-            max_slippage: [kongswapArgs.slippage],
+            max_slippage: [maxSlippage],
             referred_by: [],
             receive_address: [],
             pay_tx_id: pay_tx_id ? [pay_tx_id] : [],

@@ -1,6 +1,10 @@
 import { LedgerTx } from "./Response";
 import { Token } from "./Token";
 
+export type PrepareSwapInput = SwapInput & {
+    approveAmount: bigint;
+};
+
 export type SwapInput = {
     tokenIn: Token;
     amountIn: bigint;
