@@ -12,11 +12,11 @@ export class CanisterWrapper {
     }
 
     public setIdentity(identity: Identity) {
-        this.agent.replaceIdentity(identity);
+        this.agent?.replaceIdentity(identity);
     }
 
     public invalidateIdentity() {
-        this.agent.invalidateIdentity();
+        this.agent?.invalidateIdentity();
     }
 
     public getCanisterId(): string {

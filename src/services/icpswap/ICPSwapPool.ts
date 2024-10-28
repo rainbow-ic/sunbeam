@@ -20,9 +20,9 @@ import { TokenStandard, icswap } from "../../types";
 import { Principal } from "@dfinity/principal";
 import { CanisterWrapper } from "../../types/CanisterWrapper";
 import { icsPool } from "../../types/actors";
-import { Token } from "@alpaca-icp/token-adapter";
 import { PoolInfo, UserUnusedBalance } from "../../types/ICPSwap";
 import { principalToSubaccount } from "../../utils/principalToSubaccount";
+import { Token } from "@alpaca-icp/token-adapter";
 
 type IcpswapPoolActor = icsPool._SERVICE;
 
