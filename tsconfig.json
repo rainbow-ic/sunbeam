@@ -7,19 +7,15 @@
         "skipLibCheck": true /* Skip type checking all .d.ts files. */,
         "allowJs": true,
         "outDir": "./dist",
+        "strict": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
         "incremental": true,
         "strictNullChecks": false,
         "noImplicitAny": false,
         "strictBindCallApply": false,
-        "inlineSourceMap": true,
-        "noEmit": true,
-        "types": [],
-
-        /* Linting */
-        "strict": true,
-        "noUnusedLocals": true,
-        "noUnusedParameters": true,
-        "noFallthroughCasesInSwitch": true
+        "noFallthroughCasesInSwitch": false,
+        "inlineSourceMap": true
     },
     "exclude": ["node_modules", "dist", "coverage", "**/*.test.ts", "**/*.spec.ts"]
 }
