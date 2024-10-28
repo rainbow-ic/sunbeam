@@ -11,14 +11,6 @@ export class CanisterWrapper {
         this.agent = agent;
     }
 
-    public setIdentity(identity: Identity) {
-        this.agent!.replaceIdentity(identity);
-    }
-
-    public invalidateIdentity() {
-        this.agent!.invalidateIdentity();
-    }
-
     public getCanisterId(): string {
         return this.id;
     }
