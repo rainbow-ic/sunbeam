@@ -114,12 +114,6 @@ export class ICPSwapPool extends CanisterWrapper implements IPool {
         return quote;
     }
 
-    async depositFrom(args: DepositArgs): Promise<bigint> {
-        const res = await this.actor.depositFrom(args);
-        const depositResult = parseResultResponse(res);
-        return depositResult;
-    }
-
     async deposit(args: DepositArgs): Promise<bigint> {
         const res = await this.actor.deposit(args);
         const depositResult = parseResultResponse(res);
@@ -156,7 +150,6 @@ export class ICPSwapPool extends CanisterWrapper implements IPool {
         let tokenSwapInstance: Token;
         let fee: bigint;
         let tokenAddress: string;
-        let tokenStandard: TokenStandard;
 
         const response: Array<LedgerTx> = [];
 
@@ -168,7 +161,6 @@ export class ICPSwapPool extends CanisterWrapper implements IPool {
             });
             fee = await tokenSwapInstance.getFee();
             tokenAddress = meta1.address;
-            tokenStandard = meta1.standard as TokenStandard;
         } else {
             tokenSwapInstance = new Token({
                 canisterId: meta2.address,
@@ -177,115 +169,62 @@ export class ICPSwapPool extends CanisterWrapper implements IPool {
             });
             fee = await tokenSwapInstance.getFee();
             tokenAddress = meta2.address;
-            tokenStandard = meta2.standard as TokenStandard;
         }
 
-        if (tokenStandard !== "ICRC1") {
-            const approveBlockId = await tokenSwapInstance.approve({
-                fee: [],
-                memo: [],
-                from_subaccount: [],
-                created_at_time: [],
-                amount: args.amountIn,
-                expected_allowance: [],
-                expires_at: [],
-                spender: {
-                    owner: Principal.fromText(this.id),
-                    subaccount: [],
-                },
-            });
+        const operator = await this.agent.getPrincipal();
+        const poolSubaccount = principalToSubaccount(operator);
 
-            response.push({
-                address: tokenAddress,
-                blockId: approveBlockId,
-                amount: args.amountIn,
-                timestamp: Date.now(),
-                type: LedgerTransactionType.Approve,
-                from: {
-                    owner: caller,
-                    subaccount: [],
-                },
-                spender: {
-                    owner: Principal.fromText(this.id),
-                    subaccount: [],
-                },
-            });
+        // https://github.com/ICPSwap-Labs/docs/blob/main/02.SwapPool/Swap/02.Executing_a_Trade.md#step-2
+        const transferBlockIdForPoolSubaccount = await tokenSwapInstance.transfer({
+            fee: [],
+            memo: [],
+            from_subaccount: [],
+            created_at_time: [],
+            amount: args.amountIn - fee,
+            to: {
+                owner: Principal.fromText(this.id),
+                subaccount: [poolSubaccount],
+            },
+        });
 
-            const transferBlockId = await this.depositFrom({
-                fee,
-                amount: args.amountIn,
-                token: tokenAddress,
-            });
+        response.push({
+            address: tokenAddress,
+            blockId: transferBlockIdForPoolSubaccount,
+            amount: args.amountIn - fee,
+            timestamp: Date.now(),
+            type: LedgerTransactionType.Transfer,
+            from: {
+                owner: caller,
+                subaccount: [],
+            },
+            to: {
+                owner: Principal.fromText(this.id),
+                subaccount: [poolSubaccount],
+            },
+        });
 
-            response.push({
-                address: tokenAddress,
-                blockId: transferBlockId,
-                amount: args.amountIn,
-                timestamp: Date.now(),
-                type: LedgerTransactionType.Transfer,
-                from: {
-                    owner: caller,
-                    subaccount: [],
-                },
-                to: {
-                    owner: Principal.fromText(this.id),
-                    subaccount: [],
-                },
-            });
-        } else {
-            // https://github.com/ICPSwap-Labs/docs/blob/main/02.SwapPool/Swap/02.Executing_a_Trade.md#step-2
-            const operator = await this.agent.getPrincipal();
-            const poolSubaccount = principalToSubaccount(operator);
-            const transferBlockIdForPoolSubaccount = await tokenSwapInstance.transfer({
-                fee: [],
-                memo: [],
-                from_subaccount: [],
-                created_at_time: [],
-                amount: args.amountIn,
-                to: {
-                    owner: Principal.fromText(this.id),
-                    subaccount: [poolSubaccount],
-                },
-            });
+        const depositAmount = await this.deposit({
+            fee,
+            amount: args.amountIn - fee,
+            token: tokenAddress,
+        });
 
-            response.push({
-                address: tokenAddress,
-                blockId: transferBlockIdForPoolSubaccount,
-                amount: args.amountIn,
-                timestamp: Date.now(),
-                type: LedgerTransactionType.Transfer,
-                from: {
-                    owner: caller,
-                    subaccount: [],
-                },
-                to: {
-                    owner: Principal.fromText(this.id),
-                    subaccount: [poolSubaccount],
-                },
-            });
-
-            const transferBlockId = await this.deposit({
-                fee,
-                amount: args.amountIn,
-                token: tokenAddress,
-            });
-
-            response.push({
-                address: tokenAddress,
-                blockId: transferBlockId,
-                amount: args.amountIn,
-                timestamp: Date.now(),
-                type: LedgerTransactionType.Transfer,
-                from: {
-                    owner: Principal.fromText(this.id),
-                    subaccount: [poolSubaccount],
-                },
-                to: {
-                    owner: Principal.fromText(this.id),
-                    subaccount: [],
-                },
-            });
-        }
+        response.push({
+            address: tokenAddress,
+            // the deposit from subaccount to pool account is internal to the pool cannot be tracked
+            blockId: BigInt(0),
+            amount: depositAmount,
+            timestamp: Date.now(),
+            type: LedgerTransactionType.Transfer,
+            from: {
+                owner: Principal.fromText(this.id),
+                subaccount: [poolSubaccount],
+            },
+            to: {
+                owner: Principal.fromText(this.id),
+                subaccount: [],
+            },
+        });
 
         return response;
     }
@@ -301,7 +240,7 @@ export class ICPSwapPool extends CanisterWrapper implements IPool {
         const quoteResult = await this.actor.quote({
             amountIn: swapArgs.amountIn,
             zeroForOne: swapArgs.zeroForOne,
-            amountOutMinimum: swapArgs.amountOutMinimum,
+            amountOutMinimum: String(0),
         });
 
         const swapResult = await this.actor.swap({
