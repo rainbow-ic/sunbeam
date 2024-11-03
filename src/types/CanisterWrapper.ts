@@ -10,4 +10,12 @@ export class CanisterWrapper {
         this.id = id;
         this.agent = agent;
     }
+
+    public getCanisterId(): string {
+        return this.id;
+    }
+
+    public getAgent(): Agent {
+        return this.agent;
+    }
 }

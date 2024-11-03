@@ -22,3 +22,8 @@ export type PoolMetadata = ActorPoolMetadata;
 export type SwapInput = SwapArgs;
 
 export type PoolInfo = PublicPoolOverView;
+
+export type UserUnusedBalance = {
+    token1: bigint;
+    token2: bigint;
+};

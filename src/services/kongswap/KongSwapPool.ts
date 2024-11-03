@@ -3,7 +3,11 @@ import {
     GetLPInfoResponse,
     IPool,
     kongswap,
+    LedgerTransactionType,
+    LedgerTx,
     PoolData,
+    PrepareSwapInput,
+    PrepareSwapResponse,
     QuoteInput,
     QuoteResponse,
     SwapInput,
@@ -12,8 +16,11 @@ import {
 } from "../../types";
 import { kongBackend } from "../../types/actors";
 import { CanisterWrapper } from "../../types/CanisterWrapper";
-import { parseResultResponse } from "../../utils";
+import { parseResultResponse, validateCaller } from "../../utils";
 import { PoolInfo } from "../../types/KongSwap";
+import { SwapAmountsReply, TxId } from "../../types/actors/kongswap/kongBackend";
+import { Token as TokenAdapter, TokenStandard } from "@alpaca-icp/token-adapter";
+import { Principal } from "@dfinity/principal";
 
 type KongSwapActor = kongBackend._SERVICE;
 
@@ -57,7 +64,7 @@ export class KongSwapPool extends CanisterWrapper implements IPool {
     private toSwapArgs(args: SwapInput): kongswap.SwapInput {
         const [token1, token2] = this.getTokens();
 
-        if (args.tokenIn.address !== token1.address && args.tokenIn.address !== token2.address) {
+        if (!this.isForToken(args.tokenIn)) {
             throw new Error("Invalid token");
         }
 
@@ -76,18 +83,129 @@ export class KongSwapPool extends CanisterWrapper implements IPool {
         };
     }
 
+    async prepareSwap(args: PrepareSwapInput): Promise<PrepareSwapResponse> {
+        const caller = await this.agent.getPrincipal();
+        validateCaller(caller);
+
+        const tokenSwapInstance = new TokenAdapter({
+            canisterId: args.tokenIn.address,
+            tokenStandard: "ICRC1" as TokenStandard,
+            agent: this.agent,
+        });
+
+        // This is hack to know what token standard is supported by the token
+        const tokenStandards = await tokenSwapInstance.supportedStandards();
+
+        const response: Array<LedgerTx> = [];
+
+        if (!tokenStandards.includes("ICRC-1") && !tokenStandards.includes("ICRC-2")) {
+            throw new Error("Token standard not supported");
+        }
+
+        const isOnlyICRC1 = !tokenStandards.includes("ICRC-2") && tokenStandards.includes("ICRC-1");
+
+        if (isOnlyICRC1) {
+            const transferBlockId = await tokenSwapInstance.transfer({
+                fee: [],
+                memo: [],
+                from_subaccount: [],
+                created_at_time: [],
+                amount: args.amountIn,
+                to: {
+                    owner: Principal.fromText(this.id),
+                    subaccount: [],
+                },
+            });
+
+            response.push({
+                address: args.tokenIn.address,
+                blockId: transferBlockId,
+                amount: args.amountIn,
+                timestamp: Date.now(),
+                type: LedgerTransactionType.Transfer,
+                from: {
+                    owner: caller,
+                    subaccount: [],
+                },
+                to: {
+                    owner: Principal.fromText(this.id),
+                    subaccount: [],
+                },
+            });
+        } else {
+            const approveBlockId = await tokenSwapInstance.approve({
+                fee: [],
+                memo: [],
+                from_subaccount: [],
+                created_at_time: [],
+                amount: args.approveAmount,
+                expected_allowance: [],
+                expires_at: [],
+                spender: {
+                    owner: Principal.fromText(this.id),
+                    subaccount: [],
+                },
+            });
+
+            response.push({
+                address: args.tokenIn.address,
+                blockId: approveBlockId,
+                amount: args.amountIn,
+                timestamp: Date.now(),
+                type: LedgerTransactionType.Approve,
+                from: {
+                    owner: caller,
+                    subaccount: [],
+                },
+                spender: {
+                    owner: Principal.fromText(this.id),
+                    subaccount: [],
+                },
+            });
+        }
+        return response;
+    }
+
+    /**
+     * @description this swap method only supportts for icrc2 tokens
+     */
     async swap(args: SwapInput): Promise<SwapResponse> {
+        const caller = await this.agent.getPrincipal();
+        validateCaller(caller);
         const kongswapArgs = this.toSwapArgs(args);
+
+        let pay_tx_id: TxId | null = null;
+
+        // checking only one ledger transaction is allowed
+        // checking the ledger transaction type is transfer
+        if (args.ledgerTxs) {
+            if (args.ledgerTxs.length >= 2) {
+                throw new Error(
+                    "Invalid ledger transactions. KongSwap need only one ledger transaction",
+                );
+            }
+
+            const ledgerTx = args.ledgerTxs[0];
+
+            if (ledgerTx.type === LedgerTransactionType.Transfer) {
+                pay_tx_id = {
+                    BlockIndex: ledgerTx.blockId,
+                };
+            }
+        }
+
+        // quote again to get the latest slippage
+        const maxSlippage = await this.getMaxSlippage(args);
 
         const swapResult = await this.actor.swap({
             pay_token: kongswapArgs.tokenIn,
             pay_amount: kongswapArgs.amountIn,
             receive_token: kongswapArgs.tokenOut,
             receive_amount: [kongswapArgs.amountOut],
-            max_slippage: [kongswapArgs.slippage],
+            max_slippage: [maxSlippage],
             referred_by: [],
             receive_address: [],
-            pay_tx_id: [],
+            pay_tx_id: pay_tx_id ? [pay_tx_id] : [],
         });
         const res = parseResultResponse(swapResult);
 
@@ -101,7 +219,7 @@ export class KongSwapPool extends CanisterWrapper implements IPool {
     async getMaxSlippage(args: QuoteInput): Promise<number> {
         const [token1, token2] = this.getTokens();
 
-        if (args.tokenIn.address !== token1.address && args.tokenIn.address !== token2.address) {
+        if (!this.isForToken(args.tokenIn)) {
             throw new Error("Invalid token");
         }
 
@@ -124,7 +242,7 @@ export class KongSwapPool extends CanisterWrapper implements IPool {
     async quote(args: QuoteInput): Promise<QuoteResponse> {
         const [token1, token2] = this.getTokens();
 
-        if (args.tokenIn.address !== token1.address && args.tokenIn.address !== token2.address) {
+        if (!this.isForToken(args.tokenIn)) {
             throw new Error("Invalid token");
         }
 
@@ -143,6 +261,30 @@ export class KongSwapPool extends CanisterWrapper implements IPool {
 
         return res.receive_amount;
     }
+
+    async fullQuote(args: QuoteInput): Promise<SwapAmountsReply> {
+        const [token1, token2] = this.getTokens();
+
+        if (!this.isForToken(args.tokenIn)) {
+            throw new Error("Invalid token");
+        }
+
+        const tokenIn = args.tokenIn.address === token1.address ? token1 : token2;
+        const tokenOut = args.tokenIn.address === token1.address ? token2 : token1;
+
+        const tokenInWithChain = `${tokenIn.chain}.${tokenIn.address}`;
+        const tokenOutWithChain = `${tokenOut.chain}.${tokenOut.address}`;
+
+        const swapAmountResult = await this.actor.swap_amounts(
+            tokenInWithChain,
+            args.amountIn,
+            tokenOutWithChain,
+        );
+        const res = parseResultResponse(swapAmountResult);
+
+        return res;
+    }
+
     async getMetadata(): Promise<kongswap.PoolMetadata> {
         const poolsResponse = await this.actor.pools([this.poolInfo.address]);
         const poolMetadata = parseResultResponse(poolsResponse);
@@ -165,19 +307,21 @@ export class KongSwapPool extends CanisterWrapper implements IPool {
         return [this.poolInfo.token1, this.poolInfo.token2];
     }
     async getLPInfo(): Promise<GetLPInfoResponse> {
-        return {
-            token1Address: this.poolInfo.address_0,
-            token2Address: this.poolInfo.address_1,
-            token1Chain: this.poolInfo.chain_0,
-            token2Chain: this.poolInfo.chain_1,
-            token1Symbol: this.poolInfo.symbol_0,
-            token2Symbol: this.poolInfo.symbol_1,
-            token1Balance: this.poolInfo.balance_0,
-            token2Balance: this.poolInfo.balance_1,
-            lpFeeToken1: this.poolInfo.lp_fee_0,
-            lpFeeToken2: this.poolInfo.lp_fee_1,
-            lpFee: this.poolInfo.lp_fee_bps,
-            price: this.poolInfo.price,
-        };
+        if ("lp_fee_bps" in this.poolInfo) {
+            return {
+                token1Address: this.poolInfo.address_0,
+                token2Address: this.poolInfo.address_1,
+                token1Chain: this.poolInfo.chain_0,
+                token2Chain: this.poolInfo.chain_1,
+                token1Symbol: this.poolInfo.symbol_0,
+                token2Symbol: this.poolInfo.symbol_1,
+                token1Balance: this.poolInfo.balance_0,
+                token2Balance: this.poolInfo.balance_1,
+                lpFeeToken1: this.poolInfo.lp_fee_0,
+                lpFeeToken2: this.poolInfo.lp_fee_1,
+                lpFee: this.poolInfo.lp_fee_bps,
+                price: this.poolInfo.price,
+            };
+        } else throw new Error("This pair is not a LP pair");
     }
 }

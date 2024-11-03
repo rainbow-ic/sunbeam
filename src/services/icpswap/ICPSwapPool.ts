@@ -6,18 +6,23 @@ import {
     SwapInput,
     SwapResponse,
     GetLPInfoResponse,
+    PrepareSwapResponse,
+    LedgerTransactionType,
+    LedgerTx,
 } from "../../types";
 import {
     DepositArgs,
     PoolMetadata as ICSPoolMetadata,
+    WithdrawArgs,
 } from "../../types/actors/icswap/icpswapPool";
 import { parseResultResponse, validateCaller } from "../../utils";
 import { TokenStandard, icswap } from "../../types";
 import { Principal } from "@dfinity/principal";
 import { CanisterWrapper } from "../../types/CanisterWrapper";
 import { icsPool } from "../../types/actors";
+import { PoolInfo, UserUnusedBalance } from "../../types/ICPSwap";
+import { principalToSubaccount } from "../../utils/principalToSubaccount";
 import { Token } from "@alpaca-icp/token-adapter";
-import { PoolInfo } from "../../types/ICPSwap";
 
 type IcpswapPoolActor = icsPool._SERVICE;
 
@@ -33,6 +38,7 @@ export class ICPSwapPool extends CanisterWrapper implements IPool {
         });
         this.poolInfo = poolInfo;
     }
+
     getPoolInfo(): PoolInfo {
         return this.poolInfo;
     }
@@ -108,10 +114,26 @@ export class ICPSwapPool extends CanisterWrapper implements IPool {
         return quote;
     }
 
-    async depositFrom(args: DepositArgs): Promise<bigint> {
-        const res = await this.actor.depositFrom(args);
+    async deposit(args: DepositArgs): Promise<bigint> {
+        const res = await this.actor.deposit(args);
         const depositResult = parseResultResponse(res);
         return depositResult;
+    }
+
+    async withdraw(args: WithdrawArgs): Promise<bigint> {
+        const res = await this.actor.withdraw(args);
+        const withdrawResult = parseResultResponse(res);
+        return withdrawResult;
+    }
+
+    async getUnusedBalance(pricipal: Principal): Promise<UserUnusedBalance> {
+        const res = await this.actor.getUserUnusedBalance(pricipal);
+        const unusedBalance = parseResultResponse(res);
+
+        return {
+            token1: unusedBalance.balance0,
+            token2: unusedBalance.balance1,
+        };
     }
 
     async getMetadata(): Promise<ICSPoolMetadata> {
@@ -120,19 +142,16 @@ export class ICPSwapPool extends CanisterWrapper implements IPool {
         return metadata;
     }
 
-    async swap(args: SwapInput): Promise<SwapResponse> {
-        const caller = await this.agent.getPrincipal();
-        validateCaller(caller);
-
+    async prepareSwap(args: SwapInput): Promise<PrepareSwapResponse> {
         const swapArgs = this.toSwapArgs(args);
-
-        // GET TOKEN INFO
         const { token0: meta1, token1: meta2 } = await this.getMetadata();
+        const caller = await this.agent.getPrincipal();
 
         let tokenSwapInstance: Token;
         let fee: bigint;
         let tokenAddress: string;
-        let tokenStandard: TokenStandard;
+
+        const response: Array<LedgerTx> = [];
 
         if (swapArgs.zeroForOne) {
             tokenSwapInstance = new Token({
@@ -142,50 +161,87 @@ export class ICPSwapPool extends CanisterWrapper implements IPool {
             });
             fee = await tokenSwapInstance.getFee();
             tokenAddress = meta1.address;
-            tokenStandard = meta1.standard as TokenStandard;
         } else {
             tokenSwapInstance = new Token({
                 canisterId: meta2.address,
                 tokenStandard: meta2.standard as TokenStandard,
-                // TODO: fix later with Agent
                 agent: this.agent,
             });
             fee = await tokenSwapInstance.getFee();
             tokenAddress = meta2.address;
-            tokenStandard = meta2.standard as TokenStandard;
         }
 
-        // DEPOSIT TO POOL
-        if (tokenStandard !== "ICRC1") {
-            await tokenSwapInstance.approve({
-                fee: [],
-                memo: [],
-                from_subaccount: [],
-                created_at_time: [],
-                amount: BigInt(Math.floor(Number(swapArgs.amountIn) + Number(fee))),
-                expected_allowance: [],
-                expires_at: [],
-                spender: {
-                    owner: Principal.fromText(this.id),
-                    subaccount: [],
-                },
-            });
-        }
-        await this.depositFrom({
+        const operator = await this.agent.getPrincipal();
+        const poolSubaccount = principalToSubaccount(operator);
+
+        // https://github.com/ICPSwap-Labs/docs/blob/main/02.SwapPool/Swap/02.Executing_a_Trade.md#step-2
+        const transferBlockIdForPoolSubaccount = await tokenSwapInstance.transfer({
+            fee: [],
+            memo: [],
+            from_subaccount: [],
+            created_at_time: [],
+            amount: args.amountIn - fee,
+            to: {
+                owner: Principal.fromText(this.id),
+                subaccount: [poolSubaccount],
+            },
+        });
+
+        response.push({
+            address: tokenAddress,
+            blockId: transferBlockIdForPoolSubaccount,
+            amount: args.amountIn - fee,
+            timestamp: Date.now(),
+            type: LedgerTransactionType.Transfer,
+            from: {
+                owner: caller,
+                subaccount: [],
+            },
+            to: {
+                owner: Principal.fromText(this.id),
+                subaccount: [poolSubaccount],
+            },
+        });
+
+        const depositAmount = await this.deposit({
             fee,
-            amount: BigInt(swapArgs.amountIn),
+            amount: args.amountIn - fee,
             token: tokenAddress,
         });
 
-        // SWAP
+        response.push({
+            address: tokenAddress,
+            // the deposit from subaccount to pool account is internal to the pool cannot be tracked
+            blockId: BigInt(0),
+            amount: depositAmount,
+            timestamp: Date.now(),
+            type: LedgerTransactionType.Transfer,
+            from: {
+                owner: Principal.fromText(this.id),
+                subaccount: [poolSubaccount],
+            },
+            to: {
+                owner: Principal.fromText(this.id),
+                subaccount: [],
+            },
+        });
+
+        return response;
+    }
+
+    async swap(args: SwapInput): Promise<SwapResponse> {
+        const caller = await this.agent.getPrincipal();
+        validateCaller(caller);
+
+        const swapArgs = this.toSwapArgs(args);
+
+        // Quoting before swap
         // doc: https://github.com/ICPSwap-Labs/docs/blob/main/02.SwapPool/Swap/01.Getting_a_Quote.md
         const quoteResult = await this.actor.quote({
             amountIn: swapArgs.amountIn,
             zeroForOne: swapArgs.zeroForOne,
-            amountOutMinimum: swapArgs.amountOutMinimum,
+            amountOutMinimum: String(0),
         });
-
-        console.log("quoteResult", quoteResult);
 
         const swapResult = await this.actor.swap({
             amountIn: swapArgs.amountIn,

@@ -14,7 +14,8 @@
         "strictNullChecks": false,
         "noImplicitAny": false,
         "strictBindCallApply": false,
-        "noFallthroughCasesInSwitch": false
+        "noFallthroughCasesInSwitch": false,
+        "inlineSourceMap": true
     },
-    "exclude": ["node_modules", "dist", "coverage"]
+    "exclude": ["node_modules", "dist", "coverage", "**/*.test.ts", "**/*.spec.ts"]
 }
