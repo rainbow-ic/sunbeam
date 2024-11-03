@@ -23,5 +23,4 @@ npm run build && {
 
   # Publish to npm
   npm publish
-  
 }
