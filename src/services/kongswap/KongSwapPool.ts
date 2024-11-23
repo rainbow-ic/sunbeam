@@ -194,15 +194,12 @@ export class KongSwapPool extends CanisterWrapper implements IPool {
             }
         }
 
-        // quote again to get the latest slippage
-        const maxSlippage = await this.getMaxSlippage(args);
-
         const swapResult = await this.actor.swap({
             pay_token: kongswapArgs.tokenIn,
             pay_amount: kongswapArgs.amountIn,
             receive_token: kongswapArgs.tokenOut,
             receive_amount: [kongswapArgs.amountOut],
-            max_slippage: [maxSlippage],
+            max_slippage: [args.slippage],
             referred_by: [],
             receive_address: [],
             pay_tx_id: pay_tx_id ? [pay_tx_id] : [],
