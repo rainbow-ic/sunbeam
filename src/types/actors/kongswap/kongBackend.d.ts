@@ -1,4 +1,3 @@
-import type { Principal } from "@dfinity/principal";
 import type { ActorMethod } from "@dfinity/agent";
 import type { IDL } from "@dfinity/candid";
 
@@ -7,6 +6,8 @@ export interface AddLiquidityAmountsReply {
     add_lp_token_amount: bigint;
     amount_0: bigint;
     amount_1: bigint;
+    address_0: string;
+    address_1: string;
     symbol_0: string;
     symbol_1: string;
     chain_0: string;
@@ -57,7 +58,6 @@ export interface AddPoolReply {
     status: string;
     tx_id: bigint;
     lp_token_symbol: string;
-    balance: bigint;
     add_lp_token_amount: bigint;
     transfer_ids: Array<TransferIdReply>;
     amount_0: bigint;
@@ -67,7 +67,6 @@ export interface AddPoolReply {
     symbol_1: string;
     chain_0: string;
     chain_1: string;
-    lp_token_supply: bigint;
     symbol: string;
     lp_fee_bps: number;
     on_kong: boolean;
@@ -92,18 +91,6 @@ export interface BalancesReply {
     usd_amount_1: number;
     symbol: string;
 }
-export interface CanisterStatusResponse {
-    status: CanisterStatusType;
-    memory_size: bigint;
-    cycles: bigint;
-    settings: DefiniteCanisterSettings;
-    query_stats: QueryStats;
-    idle_cycles_burned_per_day: bigint;
-    module_hash: [] | [Uint8Array | number[]];
-    reserved_cycles: bigint;
-}
-export type CanisterStatusResult = { Ok: CanisterStatusResponse } | { Err: string };
-export type CanisterStatusType = { stopped: null } | { stopping: null } | { running: null };
 export interface CheckPoolsReply {
     expected_balance: ExpectedBalance;
     diff_balance: bigint;
@@ -111,15 +98,6 @@ export interface CheckPoolsReply {
     symbol: string;
 }
 export type CheckPoolsResult = { Ok: Array<CheckPoolsReply> } | { Err: string };
-export interface DefiniteCanisterSettings {
-    freezing_threshold: bigint;
-    controllers: Array<Principal>;
-    reserved_cycles_limit: bigint;
-    log_visibility: LogVisibility;
-    wasm_memory_limit: bigint;
-    memory_allocation: bigint;
-    compute_allocation: bigint;
-}
 export interface ExpectedBalance {
     balance: bigint;
     pool_balances: Array<PoolExpectedBalance>;
@@ -148,6 +126,9 @@ export interface ICTransferReply {
     amount: bigint;
     symbol: string;
 }
+export interface Icrc28TrustedOriginsResponse {
+    trusted_origins: Array<string>;
+}
 export interface LPTokenReply {
     fee: bigint;
     decimals: number;
@@ -162,7 +143,6 @@ export interface LPTokenReply {
     symbol: string;
     on_kong: boolean;
 }
-export type LogVisibility = { controllers: null } | { public: null };
 export interface MessagesReply {
     ts: bigint;
     title: string;
@@ -197,7 +177,6 @@ export interface PoolReply {
     price: number;
     chain_0: string;
     chain_1: string;
-    lp_token_supply: bigint;
     symbol: string;
     rolling_24h_lp_fee: bigint;
     lp_fee_bps: number;
@@ -211,17 +190,13 @@ export interface PoolsReply {
     total_24h_num_swaps: bigint;
 }
 export type PoolsResult = { Ok: PoolsReply } | { Err: string };
-export interface QueryStats {
-    response_payload_bytes_total: bigint;
-    num_instructions_total: bigint;
-    num_calls_total: bigint;
-    request_payload_bytes_total: bigint;
-}
 export interface RemoveLiquidityAmountsReply {
     lp_fee_0: bigint;
     lp_fee_1: bigint;
     amount_0: bigint;
     amount_1: bigint;
+    address_0: string;
+    address_1: string;
     symbol_0: string;
     symbol_1: string;
     chain_0: string;
@@ -302,6 +277,8 @@ export interface SwapAmountsReply {
     receive_amount: bigint;
     pay_symbol: string;
     receive_symbol: string;
+    receive_address: string;
+    pay_address: string;
     price: number;
     pay_chain: string;
     slippage: number;
@@ -313,7 +290,9 @@ export interface SwapAmountsTxReply {
     receive_amount: bigint;
     pay_symbol: string;
     receive_symbol: string;
+    receive_address: string;
     pool_symbol: string;
+    pay_address: string;
     price: number;
     pay_chain: string;
     lp_fee: bigint;
@@ -380,6 +359,7 @@ export type TxsResult = { Ok: Array<TxsReply> } | { Err: string };
 export type UserBalancesReply = { LP: BalancesReply };
 export type UserBalancesResult = { Ok: Array<UserBalancesReply> } | { Err: string };
 export interface UserReply {
+    account_id: string;
     user_name: string;
     fee_level_expires_at: [] | [bigint];
     referred_by: [] | [string];
@@ -391,19 +371,19 @@ export interface UserReply {
     my_referral_code: string;
 }
 export type UserResult = { Ok: UserReply } | { Err: string };
+export type ValidateAddLiquidityResult = { Ok: string } | { Err: string };
+export type ValidateRemoveLiquidityResult = { Ok: string } | { Err: string };
 export interface _SERVICE {
     add_liquidity: ActorMethod<[AddLiquidityArgs], AddLiquidityResult>;
     add_liquidity_amounts: ActorMethod<[string, bigint, string], AddLiquiditAmountsResult>;
     add_liquidity_async: ActorMethod<[AddLiquidityArgs], AddLiquidityAsyncResult>;
     add_pool: ActorMethod<[AddPoolArgs], AddPoolResult>;
-    add_token: ActorMethod<[AddTokenArgs], AddTokenResult>;
-    canister_status: ActorMethod<[], CanisterStatusResult>;
     check_pools: ActorMethod<[], CheckPoolsResult>;
-    get_requests: ActorMethod<[[] | [bigint]], RequestsResult>;
-    get_transfers: ActorMethod<[[] | [bigint]], TransfersResult>;
-    get_txs: ActorMethod<[[] | [bigint]], TxsResult>;
+    get_requests: ActorMethod<[[] | [bigint], [] | [number], [] | [number]], RequestsResult>;
+    get_txs: ActorMethod<[[] | [bigint], [] | [bigint], [] | [number], [] | [number]], TxsResult>;
     get_user: ActorMethod<[], UserResult>;
     icrc1_name: ActorMethod<[], string>;
+    icrc28_trusted_origins: ActorMethod<[], Icrc28TrustedOriginsResponse>;
     messages: ActorMethod<[[] | [bigint]], MessagesResult>;
     pools: ActorMethod<[[] | [string]], PoolsResult>;
     remove_liquidity: ActorMethod<[RemoveLiquidityArgs], RemoveLiquidityResult>;
@@ -417,6 +397,8 @@ export interface _SERVICE {
     tokens: ActorMethod<[[] | [string]], TokensResult>;
     txs: ActorMethod<[[] | [boolean]], TxsResult>;
     user_balances: ActorMethod<[[] | [string]], UserBalancesResult>;
+    validate_add_liquidity: ActorMethod<[], ValidateAddLiquidityResult>;
+    validate_remove_liquidity: ActorMethod<[], ValidateRemoveLiquidityResult>;
 }
 export declare const idlFactory: IDL.InterfaceFactory;
 export declare const init: (args: { IDL: typeof IDL }) => IDL.Type[];

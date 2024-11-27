@@ -48,6 +48,8 @@ export const idlFactory = ({ IDL }) => {
         add_lp_token_amount: IDL.Nat,
         amount_0: IDL.Nat,
         amount_1: IDL.Nat,
+        address_0: IDL.Text,
+        address_1: IDL.Text,
         symbol_0: IDL.Text,
         symbol_1: IDL.Text,
         chain_0: IDL.Text,
@@ -80,7 +82,6 @@ export const idlFactory = ({ IDL }) => {
         status: IDL.Text,
         tx_id: IDL.Nat64,
         lp_token_symbol: IDL.Text,
-        balance: IDL.Nat,
         add_lp_token_amount: IDL.Nat,
         transfer_ids: IDL.Vec(TransferIdReply),
         amount_0: IDL.Nat,
@@ -90,74 +91,11 @@ export const idlFactory = ({ IDL }) => {
         symbol_1: IDL.Text,
         chain_0: IDL.Text,
         chain_1: IDL.Text,
-        lp_token_supply: IDL.Nat,
         symbol: IDL.Text,
         lp_fee_bps: IDL.Nat8,
         on_kong: IDL.Bool,
     });
     const AddPoolResult = IDL.Variant({ Ok: AddPoolReply, Err: IDL.Text });
-    const AddTokenArgs = IDL.Record({
-        token: IDL.Text,
-        on_kong: IDL.Opt(IDL.Bool),
-    });
-    const ICTokenReply = IDL.Record({
-        fee: IDL.Nat,
-        decimals: IDL.Nat8,
-        token: IDL.Text,
-        token_id: IDL.Nat32,
-        chain: IDL.Text,
-        name: IDL.Text,
-        canister_id: IDL.Text,
-        icrc1: IDL.Bool,
-        icrc2: IDL.Bool,
-        icrc3: IDL.Bool,
-        pool_symbol: IDL.Text,
-        symbol: IDL.Text,
-        on_kong: IDL.Bool,
-    });
-    const AddTokenReply = IDL.Variant({ IC: ICTokenReply });
-    const AddTokenResult = IDL.Variant({
-        Ok: AddTokenReply,
-        Err: IDL.Text,
-    });
-    const CanisterStatusType = IDL.Variant({
-        stopped: IDL.Null,
-        stopping: IDL.Null,
-        running: IDL.Null,
-    });
-    const LogVisibility = IDL.Variant({
-        controllers: IDL.Null,
-        public: IDL.Null,
-    });
-    const DefiniteCanisterSettings = IDL.Record({
-        freezing_threshold: IDL.Nat,
-        controllers: IDL.Vec(IDL.Principal),
-        reserved_cycles_limit: IDL.Nat,
-        log_visibility: LogVisibility,
-        wasm_memory_limit: IDL.Nat,
-        memory_allocation: IDL.Nat,
-        compute_allocation: IDL.Nat,
-    });
-    const QueryStats = IDL.Record({
-        response_payload_bytes_total: IDL.Nat,
-        num_instructions_total: IDL.Nat,
-        num_calls_total: IDL.Nat,
-        request_payload_bytes_total: IDL.Nat,
-    });
-    const CanisterStatusResponse = IDL.Record({
-        status: CanisterStatusType,
-        memory_size: IDL.Nat,
-        cycles: IDL.Nat,
-        settings: DefiniteCanisterSettings,
-        query_stats: QueryStats,
-        idle_cycles_burned_per_day: IDL.Nat,
-        module_hash: IDL.Opt(IDL.Vec(IDL.Nat8)),
-        reserved_cycles: IDL.Nat,
-    });
-    const CanisterStatusResult = IDL.Variant({
-        Ok: CanisterStatusResponse,
-        Err: IDL.Text,
-    });
     const PoolExpectedBalance = IDL.Record({
         balance: IDL.Nat,
         kong_fee: IDL.Nat,
@@ -267,10 +205,6 @@ export const idlFactory = ({ IDL }) => {
         Ok: IDL.Vec(RequestsReply),
         Err: IDL.Text,
     });
-    const TransfersResult = IDL.Variant({
-        Ok: IDL.Vec(TransferIdReply),
-        Err: IDL.Text,
-    });
     const TxsReply = IDL.Variant({
         AddLiquidity: AddLiquidityReply,
         Swap: SwapReply,
@@ -279,6 +213,7 @@ export const idlFactory = ({ IDL }) => {
     });
     const TxsResult = IDL.Variant({ Ok: IDL.Vec(TxsReply), Err: IDL.Text });
     const UserReply = IDL.Record({
+        account_id: IDL.Text,
         user_name: IDL.Text,
         fee_level_expires_at: IDL.Opt(IDL.Nat64),
         referred_by: IDL.Opt(IDL.Text),
@@ -290,6 +225,9 @@ export const idlFactory = ({ IDL }) => {
         my_referral_code: IDL.Text,
     });
     const UserResult = IDL.Variant({ Ok: UserReply, Err: IDL.Text });
+    const Icrc28TrustedOriginsResponse = IDL.Record({
+        trusted_origins: IDL.Vec(IDL.Text),
+    });
     const MessagesReply = IDL.Record({
         ts: IDL.Nat64,
         title: IDL.Text,
@@ -321,7 +259,6 @@ export const idlFactory = ({ IDL }) => {
         price: IDL.Float64,
         chain_0: IDL.Text,
         chain_1: IDL.Text,
-        lp_token_supply: IDL.Nat,
         symbol: IDL.Text,
         rolling_24h_lp_fee: IDL.Nat,
         lp_fee_bps: IDL.Nat8,
@@ -344,6 +281,8 @@ export const idlFactory = ({ IDL }) => {
         lp_fee_1: IDL.Nat,
         amount_0: IDL.Nat,
         amount_1: IDL.Nat,
+        address_0: IDL.Text,
+        address_1: IDL.Text,
         symbol_0: IDL.Text,
         symbol_1: IDL.Text,
         chain_0: IDL.Text,
@@ -382,7 +321,9 @@ export const idlFactory = ({ IDL }) => {
         receive_amount: IDL.Nat,
         pay_symbol: IDL.Text,
         receive_symbol: IDL.Text,
+        receive_address: IDL.Text,
         pool_symbol: IDL.Text,
+        pay_address: IDL.Text,
         price: IDL.Float64,
         pay_chain: IDL.Text,
         lp_fee: IDL.Nat,
@@ -396,6 +337,8 @@ export const idlFactory = ({ IDL }) => {
         receive_amount: IDL.Nat,
         pay_symbol: IDL.Text,
         receive_symbol: IDL.Text,
+        receive_address: IDL.Text,
+        pay_address: IDL.Text,
         price: IDL.Float64,
         pay_chain: IDL.Text,
         slippage: IDL.Float64,
@@ -405,6 +348,21 @@ export const idlFactory = ({ IDL }) => {
         Err: IDL.Text,
     });
     const SwapAsyncResult = IDL.Variant({ Ok: IDL.Nat64, Err: IDL.Text });
+    const ICTokenReply = IDL.Record({
+        fee: IDL.Nat,
+        decimals: IDL.Nat8,
+        token: IDL.Text,
+        token_id: IDL.Nat32,
+        chain: IDL.Text,
+        name: IDL.Text,
+        canister_id: IDL.Text,
+        icrc1: IDL.Bool,
+        icrc2: IDL.Bool,
+        icrc3: IDL.Bool,
+        pool_symbol: IDL.Text,
+        symbol: IDL.Text,
+        on_kong: IDL.Bool,
+    });
     const LPTokenReply = IDL.Record({
         fee: IDL.Nat,
         decimals: IDL.Nat8,
@@ -442,6 +400,14 @@ export const idlFactory = ({ IDL }) => {
         Ok: IDL.Vec(UserBalancesReply),
         Err: IDL.Text,
     });
+    const ValidateAddLiquidityResult = IDL.Variant({
+        Ok: IDL.Text,
+        Err: IDL.Text,
+    });
+    const ValidateRemoveLiquidityResult = IDL.Variant({
+        Ok: IDL.Text,
+        Err: IDL.Text,
+    });
     return IDL.Service({
         add_liquidity: IDL.Func([AddLiquidityArgs], [AddLiquidityResult], []),
         add_liquidity_amounts: IDL.Func(
@@ -451,14 +417,20 @@ export const idlFactory = ({ IDL }) => {
         ),
         add_liquidity_async: IDL.Func([AddLiquidityArgs], [AddLiquidityAsyncResult], []),
         add_pool: IDL.Func([AddPoolArgs], [AddPoolResult], []),
-        add_token: IDL.Func([AddTokenArgs], [AddTokenResult], []),
-        canister_status: IDL.Func([], [CanisterStatusResult], []),
         check_pools: IDL.Func([], [CheckPoolsResult], []),
-        get_requests: IDL.Func([IDL.Opt(IDL.Nat64)], [RequestsResult], ["query"]),
-        get_transfers: IDL.Func([IDL.Opt(IDL.Nat64)], [TransfersResult], ["query"]),
-        get_txs: IDL.Func([IDL.Opt(IDL.Nat64)], [TxsResult], ["query"]),
+        get_requests: IDL.Func(
+            [IDL.Opt(IDL.Nat64), IDL.Opt(IDL.Nat32), IDL.Opt(IDL.Nat16)],
+            [RequestsResult],
+            ["query"],
+        ),
+        get_txs: IDL.Func(
+            [IDL.Opt(IDL.Nat64), IDL.Opt(IDL.Nat64), IDL.Opt(IDL.Nat32), IDL.Opt(IDL.Nat16)],
+            [TxsResult],
+            ["query"],
+        ),
         get_user: IDL.Func([], [UserResult], ["query"]),
         icrc1_name: IDL.Func([], [IDL.Text], ["query"]),
+        icrc28_trusted_origins: IDL.Func([], [Icrc28TrustedOriginsResponse], []),
         messages: IDL.Func([IDL.Opt(IDL.Nat64)], [MessagesResult], ["query"]),
         pools: IDL.Func([IDL.Opt(IDL.Text)], [PoolsResult], ["query"]),
         remove_liquidity: IDL.Func([RemoveLiquidityArgs], [RemoveLiquidityResult], []),
@@ -476,8 +448,10 @@ export const idlFactory = ({ IDL }) => {
         tokens: IDL.Func([IDL.Opt(IDL.Text)], [TokensResult], ["query"]),
         txs: IDL.Func([IDL.Opt(IDL.Bool)], [TxsResult], ["query"]),
         user_balances: IDL.Func([IDL.Opt(IDL.Text)], [UserBalancesResult], ["query"]),
+        validate_add_liquidity: IDL.Func([], [ValidateAddLiquidityResult], []),
+        validate_remove_liquidity: IDL.Func([], [ValidateRemoveLiquidityResult], []),
     });
 };
-export const init = ({}) => {
+export const init = ({ IDL }) => {
     return [];
 };
