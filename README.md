@@ -14,7 +14,7 @@ Sunbeam SDK is a TypeScript library for interacting with decentralized exchanges
 To install the Sunbeam SDK, use npm or yarn:
 
 ```bash
-npm install sunbeam-sdk
+npm i @rainbow-ic/sunbeam
 ```
 
 ## Table of Contents
