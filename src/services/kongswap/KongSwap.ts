@@ -121,7 +121,6 @@ export class KongSwap extends CanisterWrapper implements IDex {
                         icrc1: data.IC.icrc1,
                         icrc2: data.IC.icrc2,
                         icrc3: data.IC.icrc3,
-                        pool_symbol: data.IC.pool_symbol,
                         on_kong: data.IC.on_kong,
                     };
                 }
@@ -150,7 +149,6 @@ export class KongSwap extends CanisterWrapper implements IDex {
                         icrc1: data.IC.icrc1,
                         icrc2: data.IC.icrc2,
                         icrc3: data.IC.icrc3,
-                        pool_symbol: data.IC.pool_symbol,
                         on_kong: data.IC.on_kong,
                     };
                 }

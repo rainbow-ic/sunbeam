@@ -17,7 +17,6 @@ export type Token = GeneralToken & {
     icrc1: boolean;
     icrc2: boolean;
     icrc3: boolean;
-    pool_symbol: string;
     on_kong: boolean;
 };
 
