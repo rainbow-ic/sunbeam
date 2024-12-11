@@ -1,8 +1,26 @@
 {
     "name": "@rainbow-ic/sunbeam",
     "version": "0.0.12",
-    "main": "dist/index.cjs",
-    "module": "dist/index.esm",
+    "main": "./dist/cjs/index",
+    "module": "./dist/esm/index",
+    "unpkg": "./dist/esm/index",
+    "files": [
+        "src",
+        "dist"
+    ],
+    "type": "module",
+    "exports": {
+        ".": {
+            "require": {
+                "types": "./dist/cjs/index.d.ts",
+                "default": "./dist/cjs/index.js"
+            },
+            "import": {
+                "types": "./dist/esm/index.d.ts",
+                "default": "./dist/esm/index.js"
+            }
+        }
+    },
     "scripts": {
         "prepare": "husky",
         "format": "prettier --write .",
@@ -10,8 +28,8 @@
         "test:cov": "jest --coverage",
         "lint": "eslint .",
         "dev": "npx tsx src/index.ts",
-        "prebuild": "rm -rf dist ",
-        "build": "tsc -b && rollup -c --bundleConfigAsCjs"
+        "clean": "tsc --build --clean && rm -rf dist",
+        "build": "npm run clean  && tsc -b && tsc -p tsconfig.cjs.json"
     },
     "lint-staged": {
         "**/*": "prettier --write --ignore-unknown"
@@ -22,10 +40,6 @@
     "description": "multiple ICP dexes lib",
     "devDependencies": {
         "@jest/globals": "^29.7.0",
-        "@rollup/plugin-commonjs": "^28.0.0",
-        "@rollup/plugin-node-resolve": "^15.3.0",
-        "@rollup/plugin-terser": "^0.4.4",
-        "@rollup/plugin-typescript": "^12.1.0",
         "@types/jest": "^29.5.12",
         "@types/source-map-support": "^0.5.10",
         "eslint": "^9.9.1",
@@ -37,8 +51,6 @@
         "lint-staged": "^15.2.10",
         "prettier": "3.3.3",
         "prettier-plugin-rust": "^0.1.9",
-        "rollup": "^4.24.0",
-        "source-map-support": "^0.5.21",
         "ts-jest": "^29.2.5",
         "ts-node": "^10.9.2",
         "tslib": "^2.7.0",
