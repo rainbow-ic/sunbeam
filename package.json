@@ -1,6 +1,6 @@
 {
     "name": "@rainbow-ic/sunbeam",
-    "version": "0.0.12",
+    "version": "0.0.13",
     "main": "./dist/cjs/index",
     "module": "./dist/esm/index",
     "unpkg": "./dist/esm/index",
