@@ -1,8 +1,11 @@
 {
     "extends": "./tsconfig.json",
     "compilerOptions": {
-        "module": "CommonJS",
-        "outDir": "./dist/cjs",
-        "verbatimModuleSyntax": false
-    }
+        "outDir": "dist/cjs",
+        "module": "commonjs",
+        "moduleResolution": "node",
+        "rootDir": "src"
+    },
+    "include": ["src"],
+    "exclude": ["**/*.spec.*"]
 }

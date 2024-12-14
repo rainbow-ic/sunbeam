@@ -12,6 +12,7 @@
         "declaration": true,
         "forceConsistentCasingInFileNames": true,
         "esModuleInterop": true,
+        "declarationMap": true, // Optional: Generate source maps for declaration files
         "allowJs": true
     },
     "include": ["src/**/*"]

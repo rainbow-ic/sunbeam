@@ -17,9 +17,10 @@ import { CanisterWrapper } from "../../types/CanisterWrapper";
 import { parseResultResponse } from "../../utils";
 import { KongSwapPool } from "./KongSwapPool";
 import { PoolInfo } from "../../types/KongSwap";
-import { PoolsResult } from "../../types/actors/kongswap/kongBackend";
+import { actors } from "../../types";
 
 type KongSwapActor = kongBackend._SERVICE;
+type PoolsResult = actors.kongBackend.PoolsResult;
 
 export class KongSwap extends CanisterWrapper implements IDex {
     private actor: KongSwapActor;
@@ -97,7 +98,7 @@ export class KongSwap extends CanisterWrapper implements IDex {
 
                 return parsedTx;
             })
-            .filter((tx) => tx !== null);
+            .filter((tx) => tx !== null) as Transaction[];
 
         return transactions;
     }

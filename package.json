@@ -29,7 +29,7 @@
         "lint": "eslint .",
         "dev": "npx tsx src/index.ts",
         "clean": "tsc --build --clean && rm -rf dist",
-        "build": "npm run clean  && tsc -b && tsc -p tsconfig.cjs.json"
+        "build": "npm run clean && tsc -b && tsc -p tsconfig.cjs.json --emitDeclarationOnly false"
     },
     "lint-staged": {
         "**/*": "prettier --write --ignore-unknown"

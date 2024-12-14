@@ -9,12 +9,8 @@ import {
     PrepareSwapResponse,
     LedgerTransactionType,
     LedgerTx,
+    actors,
 } from "../../types";
-import {
-    DepositArgs,
-    PoolMetadata as ICSPoolMetadata,
-    WithdrawArgs,
-} from "../../types/actors/icswap/icpswapPool";
 import { parseResultResponse, validateCaller } from "../../utils";
 import { TokenStandard, icswap } from "../../types";
 import { Principal } from "@dfinity/principal";
@@ -25,6 +21,10 @@ import { principalToSubaccount } from "../../utils/principalToSubaccount";
 import { Token } from "@alpaca-icp/token-adapter";
 
 type IcpswapPoolActor = icsPool._SERVICE;
+type DepositArgs = actors.icsPool.DepositArgs;
+type ICSPoolMetadata = actors.icsPool.PoolMetadata;
+
+type WithdrawArgs = actors.icsPool.WithdrawArgs;
 
 export class ICPSwapPool extends CanisterWrapper implements IPool {
     private actor: IcpswapPoolActor;
