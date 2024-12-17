@@ -51,7 +51,7 @@ npm i @rainbow-ic/sunbeam
 ### Importing the SDK
 
 ```typescript
-import { KongSwap, ICPSwap } from "sunbeam-sdk";
+import { KongSwap, ICPSwap } from "@rainbow-ic/sunbeam";
 ```
 
 ### Initializing a DEX
@@ -60,7 +60,7 @@ import { KongSwap, ICPSwap } from "sunbeam-sdk";
 
 ```typescript
 import { HttpAgent } from "@dfinity/agent";
-import { KongSwap } from "sunbeam-sdk";
+import { KongSwap } from "@rainbow-ic/sunbeam";
 
 const agent = new HttpAgent({ host: "https://ic0.app" });
 const kongSwap = new KongSwap({ agent, address: "your-kongswap-canister-id" });
@@ -70,7 +70,7 @@ const kongSwap = new KongSwap({ agent, address: "your-kongswap-canister-id" });
 
 ```typescript
 import { HttpAgent } from "@dfinity/agent";
-import { ICPSwap } from "sunbeam-sdk";
+import { ICPSwap } from "@rainbow-ic/sunbeam";
 
 const agent = new HttpAgent({ host: "https://ic0.app" });
 const icpSwap = new ICPSwap({ agent });
@@ -181,10 +181,7 @@ console.log(transactions);
 
 #### ICPSwap
 
-```typescript
-const transactions = await icpSwap.getTransactions();
-console.log(transactions);
-```
+This is not implement yet
 
 ## Contributing
 
@@ -196,5 +193,5 @@ This project is licensed under the MIT License.
 
 ```
 
-This README provides an overview of the Sunbeam SDK, including installation instructions, usage examples, and information on contributing and licensing.
+This README provides an overview of the including installation instructions, usage examples, and information on contributing and licensing.
 ```

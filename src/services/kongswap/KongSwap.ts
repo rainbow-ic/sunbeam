@@ -18,6 +18,7 @@ import { parseResultResponse } from "../../utils";
 import { KongSwapPool } from "./KongSwapPool";
 import { PoolInfo } from "../../types/KongSwap";
 import { actors } from "../../types";
+import { KONGSWAP_BACKEND_CANISTER } from "../../constant";
 
 type KongSwapActor = kongBackend._SERVICE;
 type PoolsResult = actors.kongBackend.PoolsResult;
@@ -25,8 +26,8 @@ type PoolsResult = actors.kongBackend.PoolsResult;
 export class KongSwap extends CanisterWrapper implements IDex {
     private actor: KongSwapActor;
 
-    constructor({ agent, address }: { agent: Agent; address: string }) {
-        const id = address;
+    constructor({ agent, address }: { agent: Agent; address?: string }) {
+        const id = address ?? KONGSWAP_BACKEND_CANISTER;
         super({ id, agent });
         this.actor = Actor.createActor(kongBackend.idlFactory, {
             agent,
@@ -162,7 +163,7 @@ export class KongSwap extends CanisterWrapper implements IDex {
         return response[0];
     }
     /**
-     * @description Kongswap can swap any token to any token so token1 and token2 will not
+     * @description Kongswap can swap any token to any token so token1 and token2 will not need to be a pair
      */
     async listPools(token1?: Token, token2?: Token): Promise<IPool[]> {
         let tokensRes: PoolsResult | undefined = undefined;
@@ -219,7 +220,6 @@ export class KongSwap extends CanisterWrapper implements IDex {
         return poolsObj;
     }
     async getPool(token1: Token, token2: Token): Promise<KongSwapPool | null> {
-        console.log("getPool", token1, token2);
         if (token1.address === token2.address) {
             throw new Error("Tokens must be different");
         }
@@ -229,11 +229,8 @@ export class KongSwap extends CanisterWrapper implements IDex {
 
         const poolAddress = `${token1.address}`;
 
-        console.log("poolAddress", poolAddress);
-
         const poolsRes = await this.actor.pools([poolAddress]);
 
-        console.log("poolsRes", poolsRes);
         const result = parseResultResponse(poolsRes);
 
         if (result.pools.length === 0) {

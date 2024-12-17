@@ -43,7 +43,6 @@ export class ICPSwap extends CanisterWrapper implements IDex {
             (poolData) =>
                 new ICPSwapPool({
                     poolInfo: poolData,
-                    //TODO: fix later to Agent
                     agent: this.agent,
                 }),
         );
@@ -66,11 +65,9 @@ export class ICPSwap extends CanisterWrapper implements IDex {
     }
 
     async getPool(token1: GetPoolInput, token2: GetPoolInput): Promise<ICPSwapPool | null> {
-        // TODO: move imnplementation to shared code
         const pools = await this.listPools(token1, token2);
         if (pools.length === 0) return null;
 
-        // TODO?: add option to pick a pool if multiple exist for the selected tokens
         if (pools.length > 1) throw new Error("multiple pools found for this pair");
         return pools[0];
     }
