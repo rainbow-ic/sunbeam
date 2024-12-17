@@ -63,7 +63,7 @@ import { HttpAgent } from "@dfinity/agent";
 import { KongSwap } from "@rainbow-ic/sunbeam";
 
 const agent = new HttpAgent({ host: "https://ic0.app" });
-const kongSwap = new KongSwap({ agent, address: "your-kongswap-canister-id" });
+const kongSwap = new KongSwap({ agent });
 ```
 
 #### ICPSwap
@@ -80,33 +80,21 @@ const icpSwap = new ICPSwap({ agent });
 
 #### KongSwap
 
-```typescript
-const tokens = await kongSwap.listTokens();
-console.log(tokens);
-```
+https://github.com/rainbow-ic/sunbeam-example/blob/main/src/list_pool_and_token.ts#L8
 
 #### ICPSwap
 
-```typescript
-const tokens = await icpSwap.listTokens();
-console.log(tokens);
-```
+https://github.com/rainbow-ic/sunbeam-example/blob/main/src/list_pool_and_token.ts#L8
 
 ### Listing Pools
 
 #### KongSwap
 
-```typescript
-const pools = await kongSwap.listPools();
-console.log(pools);
-```
+https://github.com/rainbow-ic/sunbeam-example/blob/main/src/list_pool_and_token.ts#L29
 
 #### ICPSwap
 
-```typescript
-const pools = await icpSwap.listPools();
-console.log(pools);
-```
+https://github.com/rainbow-ic/sunbeam-example/blob/main/src/list_pool_and_token.ts#L54
 
 ### Getting Pool Information
 
@@ -134,41 +122,11 @@ if (pool) {
 
 #### KongSwap
 
-```typescript
-const pool = await kongSwap.getPoolByAddress("pool-address");
-if (pool) {
-    const swapInput = {
-        tokenIn: { address: "token-in-address", amountIn: 1000 },
-        tokenOut: { address: "token-out-address", amountOut: 900 },
-        slippage: 0.5,
-    };
-
-    const preparedSwap = await pool.prepareSwap(swapInput);
-    console.log(preparedSwap);
-
-    const swapResult = await pool.swap(swapInput);
-    console.log(swapResult);
-}
-```
+[code example](https://github.com/rainbow-ic/sunbeam-example/blob/main/src/kong-swap.ts#L126)
 
 #### ICPSwap
 
-```typescript
-const pool = await icpSwap.getPoolByAddress("pool-address");
-if (pool) {
-    const swapInput = {
-        tokenIn: { address: "token-in-address", amountIn: 1000 },
-        tokenOut: { address: "token-out-address", amountOut: 900 },
-        slippage: 0.5,
-    };
-
-    const preparedSwap = await pool.prepareSwap(swapInput);
-    console.log(preparedSwap);
-
-    const swapResult = await pool.swap(swapInput);
-    console.log(swapResult);
-}
-```
+[code example](https://github.com/rainbow-ic/sunbeam-example/blob/main/src/swap-test.ts#L62)
 
 ### Getting Transaction History
 
