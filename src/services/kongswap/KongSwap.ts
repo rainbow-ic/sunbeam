@@ -3,7 +3,6 @@ import {
     AddLiquidityTransaction,
     CreatePoolTransaction,
     IDex,
-    IPool,
     kongswap,
     RemoveLiquidityTransaction,
     SwapTransaction,
@@ -165,7 +164,7 @@ export class KongSwap extends CanisterWrapper implements IDex {
     /**
      * @description Kongswap can swap any token to any token so token1 and token2 will not need to be a pair
      */
-    async listPools(token1?: Token, token2?: Token): Promise<IPool[]> {
+    async listPools(token1?: Token, token2?: Token): Promise<KongSwapPool[]> {
         let tokensRes: PoolsResult | undefined = undefined;
 
         // searching for pool of token 1
