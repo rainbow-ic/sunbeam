@@ -68,7 +68,7 @@ export class ICPSwap extends CanisterWrapper implements IDex {
         const pools = await this.listPools(token1, token2);
         if (pools.length === 0) return null;
 
-        if (pools.length > 1) throw new Error("multiple pools found for this pair");
+        if (pools.length > 1) return null;
         return pools[0];
     }
 }
