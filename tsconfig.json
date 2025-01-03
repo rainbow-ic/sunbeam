@@ -9,11 +9,11 @@
         "sourceMap": true,
         "inlineSources": true,
         "strict": true,
-        "declaration": true,
         "forceConsistentCasingInFileNames": true,
         "esModuleInterop": true,
-        "declarationMap": true, // Optional: Generate source maps for declaration files
-        "allowJs": true
+        "allowJs": true,
+        "emitDeclarationOnly": false
     },
-    "include": ["src/**/*"]
+    "include": ["src/**/*"],
+    "exclude": ["tests/**/*"]
 }

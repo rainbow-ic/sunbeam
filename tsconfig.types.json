@@ -1,0 +1,10 @@
+{
+    "extends": "./tsconfig.json",
+    "compilerOptions": {
+        "outDir": "dist/types",
+        "moduleResolution": "node",
+        "declaration": true,
+        "emitDeclarationOnly": true // Optional: Only output d.ts files
+    },
+    "include": ["src/**/*"]
+}
