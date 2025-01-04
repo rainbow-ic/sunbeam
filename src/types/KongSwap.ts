@@ -10,7 +10,6 @@ import { Token as GeneralToken, PoolData } from "./shared";
 export type Token = GeneralToken & {
     fee: bigint;
     decimals: number;
-    token: string;
     token_id: number;
     chain: string;
     canister_id: string;

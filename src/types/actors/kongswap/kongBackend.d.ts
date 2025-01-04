@@ -78,19 +78,6 @@ export interface AddTokenArgs {
 }
 export type AddTokenReply = { IC: ICTokenReply };
 export type AddTokenResult = { Ok: AddTokenReply } | { Err: string };
-export interface BalancesReply {
-    ts: bigint;
-    usd_balance: number;
-    balance: number;
-    name: string;
-    amount_0: number;
-    amount_1: number;
-    symbol_0: string;
-    symbol_1: string;
-    usd_amount_0: number;
-    usd_amount_1: number;
-    symbol: string;
-}
 export interface CheckPoolsReply {
     expected_balance: ExpectedBalance;
     diff_balance: bigint;
@@ -106,7 +93,6 @@ export interface ExpectedBalance {
 export interface ICTokenReply {
     fee: bigint;
     decimals: number;
-    token: string;
     token_id: number;
     chain: string;
     name: string;
@@ -132,10 +118,26 @@ export interface Icrc10SupportedStandards {
 export interface Icrc28TrustedOriginsResponse {
     trusted_origins: Array<string>;
 }
+export interface LPBalancesReply {
+    ts: bigint;
+    usd_balance: number;
+    balance: number;
+    name: string;
+    amount_0: number;
+    amount_1: number;
+    address_0: string;
+    address_1: string;
+    symbol_0: string;
+    symbol_1: string;
+    usd_amount_0: number;
+    usd_amount_1: number;
+    chain_0: string;
+    chain_1: string;
+    symbol: string;
+}
 export interface LPTokenReply {
     fee: bigint;
     decimals: number;
-    token: string;
     token_id: number;
     chain: string;
     name: string;
@@ -356,7 +358,7 @@ export type TxsReply =
     | { AddPool: AddPoolReply }
     | { RemoveLiquidity: RemoveLiquidityReply };
 export type TxsResult = { Ok: Array<TxsReply> } | { Err: string };
-export type UserBalancesReply = { LP: BalancesReply };
+export type UserBalancesReply = { LP: LPBalancesReply };
 export type UserBalancesResult = { Ok: Array<UserBalancesReply> } | { Err: string };
 export interface UserReply {
     account_id: string;
@@ -443,8 +445,8 @@ export interface _SERVICE {
     swap_amounts: ActorMethod<[string, bigint, string], SwapAmountsResult>;
     swap_async: ActorMethod<[SwapArgs], SwapAsyncResult>;
     tokens: ActorMethod<[[] | [string]], TokensResult>;
-    txs: ActorMethod<[[] | [boolean]], TxsResult>;
-    user_balances: ActorMethod<[[] | [string]], UserBalancesResult>;
+    txs: ActorMethod<[[] | [string]], TxsResult>;
+    user_balances: ActorMethod<[string, [] | [string]], UserBalancesResult>;
     validate_add_liquidity: ActorMethod<[], ValidateAddLiquidityResult>;
     validate_remove_liquidity: ActorMethod<[], ValidateRemoveLiquidityResult>;
 }
