@@ -104,7 +104,7 @@ export class KongSwap extends CanisterWrapper implements IDex {
     }
 
     async listTokens(): Promise<kongswap.Token[]> {
-        const tokensRes = await this.actor.tokens(["all"]);
+        const tokensRes = await this.actor.tokens([]);
         const result = parseResultResponse(tokensRes);
         const response = result
             .map((data) => {
@@ -166,7 +166,7 @@ export class KongSwap extends CanisterWrapper implements IDex {
         // searching for pool of token 1
         if (token1) {
             tokensRes = await this.actor.pools([token1.address]);
-        } else tokensRes = await this.actor.pools(["all"]);
+        } else tokensRes = await this.actor.pools([]);
 
         const result = parseResultResponse(tokensRes);
         let pools = result.pools;
