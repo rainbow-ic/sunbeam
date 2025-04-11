@@ -1,6 +1,6 @@
 {
     "name": "@rainbow-ic/sunbeam",
-    "version": "0.0.23",
+    "version": "0.0.21",
     "main": "./dist/cjs/index",
     "module": "./dist/esm/index",
     "unpkg": "./dist/esm/index",
@@ -64,6 +64,7 @@
         "@dfinity/candid": "^2.1.2",
         "@dfinity/ledger-icrc": "^2.6.0",
         "@dfinity/principal": "^2.1.2",
+        "@dfinity/utils": "^2.12.0",
         "@slide-computer/signer": "^3.6.4",
         "@slide-computer/signer-agent": "^3.6.4",
         "babel-jest": "^29.7.0",

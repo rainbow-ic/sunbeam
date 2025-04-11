@@ -286,11 +286,11 @@ export class KongSwapPool extends CanisterWrapper implements IPool {
         const poolsResponse = await this.actor.pools([this.poolInfo.address]);
         const poolMetadata = parseResultResponse(poolsResponse);
 
-        if (poolMetadata.pools.length === 0) {
+        if (poolMetadata.length === 0) {
             throw new Error("Pool not found");
         }
 
-        return poolMetadata.pools[0];
+        return poolMetadata[0];
     }
     getPoolData(): PoolData {
         return this.poolInfo;
